@@ -1,0 +1,60 @@
+docker run --rm -it -v $(pwd):/gb3-resources ghcr.io/f-of-e/gb3-tools:latest /bin/bash
+
+# Base design
+Info: Device utilisation:
+Info:            ICESTORM_LC:  3073/ 5280    58%
+Info:           ICESTORM_RAM:    20/   30    66%
+Info:                  SB_IO:     8/   96     8%
+Info:                  SB_GB:     5/    8    62%
+Info:           ICESTORM_PLL:     0/    1     0%
+Info:            SB_WARMBOOT:     0/    1     0%
+Info:           ICESTORM_DSP:     0/    8     0%
+Info:         ICESTORM_HFOSC:     1/    1   100%
+Info:         ICESTORM_LFOSC:     0/    1     0%
+Info:                 SB_I2C:     0/    2     0%
+Info:                 SB_SPI:     0/    2     0%
+Info:                 IO_I3C:     0/    2     0%
+Info:            SB_LEDDA_IP:     0/    1     0%
+Info:            SB_RGBA_DRV:     0/    1     0%
+Info:         ICESTORM_SPRAM:     0/    4     0%
+
+nfo: Max frequency for clock               'clk': 15.37 MHz (PASS at 6.00 MHz)
+Info: Max frequency for clock 'clk_proc_$glb_clk': 14.17 MHz (PASS at 12.00 MHz)
+
+Info: Max delay posedge clk               -> <async>                  : 4.95 ns
+Info: Max delay posedge clk               -> posedge clk_proc_$glb_clk: 61.74 ns
+Info: Max delay posedge clk_proc_$glb_clk -> posedge clk              : 73.91 ns
+
+Total number of logic levels: 49
+Total path delay: 76.16 ns (13.13 MHz)
+
+
+/f-of-e-tools/tools/sunflower/benchmarks/source/riscv/HelloWorld
+
+
+Total number of logic levels: 37
+Total path delay: 79.41 ns (12.59 MHz)
+
+
+/f-of-e-tools/tools/sunflower/tools/bin/riscv32-elf-gcc -march=rv32i -mabi=ilp32 -DM32 -Wall -O0 -I../include -S template.c
+
+
+/*
+    *	Debugging: Writes to memory address 0x2000 set the pins
+    *	connected to the `led` wires.
+    */
+always @(posedge clk) begin
+    if ((memwrite == 1'b1) && (addr == 32'h2000)) begin
+        led_reg <= write_data;
+    end
+end
+
+reg [31:0]		datamem[8191:0];
+
+
+--- Setup sunflower
+PATH=$PATH:~/../f-of-e-tools/tools/sunflower/sim
+
+
+grep -rnw "." -e "SB_HFOSC"
+

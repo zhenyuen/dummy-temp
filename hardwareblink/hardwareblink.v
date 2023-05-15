@@ -17,7 +17,7 @@ module blink(led);
 		.CLKHF(clk)
 	);
 
-	defparam OSCInst0.CLKHF_DIV = "0b01";
+	defparam OSCInst0.CLKHF_DIV = "0b01"; // Blinks at 12,000,000 based on lattice design entry appendix
 	/*
 	 *	Blinks LED at approximately 1Hz. The constant kFofE_CLOCK_DIVIDER_FOR_1Hz
 	 *	(defined above) is calibrated to yield a blink rate of about 1Hz.
