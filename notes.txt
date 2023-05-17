@@ -58,3 +58,13 @@ PATH=$PATH:~/../f-of-e-tools/tools/sunflower/sim
 
 grep -rnw "." -e "SB_HFOSC"
 
+iverilog -o ../vcd/asd adder_sim.v ../verilog/adder.v
+
+
+newnode         riscv
+sizemem         65536
+srecl           "softwareblink-sf.sr"
+run
+on
+
+Dynamic instruction count = [64], fetched instructions = [76]

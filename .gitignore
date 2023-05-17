@@ -25,3 +25,6 @@
 **/*.map
 
 debug/
+
+.DS_Store
+simlog.node0

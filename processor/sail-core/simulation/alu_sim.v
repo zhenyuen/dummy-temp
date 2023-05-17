@@ -1,4 +1,4 @@
-module ();
+module top();
 	reg clk = 0;
 
 	reg[31:0] A, B;
@@ -121,4 +121,3 @@ initial begin
 end
 
 endmodule
-top
