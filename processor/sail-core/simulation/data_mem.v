@@ -308,7 +308,9 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	//BRAM implementation
 
 	initial begin
-		$readmemh("simulation/data.hex", data_block);
+		// $dumpfile ("data_mem.vcd");
+ 		// $dumpvars;
+		$readmemh("processor/sail-core/simulation/data.hex", data_block);
 		clk_stall = 0;
 	end
 

@@ -1,0 +1,123 @@
+$date
+	Wed May 17 15:58:18 2023
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module data_mem $end
+$var wire 32 ! addr [31:0] $end
+$var wire 1 " bdec_sig0 $end
+$var wire 1 # bdec_sig1 $end
+$var wire 1 $ bdec_sig2 $end
+$var wire 1 % bdec_sig3 $end
+$var wire 1 & clk $end
+$var wire 1 ' memread $end
+$var wire 1 ( memwrite $end
+$var wire 4 ) sign_mask [3:0] $end
+$var wire 1 * wdec_sig0 $end
+$var wire 1 + wdec_sig1 $end
+$var wire 1 , wdec_sig2 $end
+$var wire 1 - wdec_sig3 $end
+$var wire 1 . wdec_sig4 $end
+$var wire 1 / wdec_sig5 $end
+$var wire 1 0 wdec_sig6 $end
+$var wire 1 1 wdec_sig7 $end
+$var wire 32 2 write_data [31:0] $end
+$var wire 32 3 w7 [31:0] $end
+$var wire 32 4 w6 [31:0] $end
+$var wire 32 5 w5 [31:0] $end
+$var wire 32 6 w4 [31:0] $end
+$var wire 32 7 w3 [31:0] $end
+$var wire 32 8 w2 [31:0] $end
+$var wire 32 9 w1 [31:0] $end
+$var wire 32 : w0 [31:0] $end
+$var wire 8 ; led [7:0] $end
+$var wire 16 < halfword_r1 [15:0] $end
+$var wire 16 = halfword_r0 [15:0] $end
+$var wire 8 > byte_r3 [7:0] $end
+$var wire 8 ? byte_r2 [7:0] $end
+$var wire 8 @ byte_r1 [7:0] $end
+$var wire 8 A byte_r0 [7:0] $end
+$var wire 3 B addr_buf_word_offset [2:0] $end
+$var wire 6 C addr_buf_tag [5:0] $end
+$var wire 3 D addr_buf_index [2:0] $end
+$var wire 2 E addr_buf_byte_offset [1:0] $end
+$var wire 9 F addr_buf_block_addr [8:0] $end
+$var reg 32 G addr_buf [31:0] $end
+$var reg 8 H buf0 [7:0] $end
+$var reg 8 I buf1 [7:0] $end
+$var reg 8 J buf2 [7:0] $end
+$var reg 8 K buf3 [7:0] $end
+$var reg 1 L clk_stall $end
+$var reg 32 M led_reg [31:0] $end
+$var reg 256 N line_buf [255:0] $end
+$var reg 1 O memread_buf $end
+$var reg 1 P memwrite_buf $end
+$var reg 32 Q read_buf [31:0] $end
+$var reg 32 R read_data [31:0] $end
+$var reg 32 S replacement_word [31:0] $end
+$var reg 4 T sign_mask_buf [3:0] $end
+$var reg 32 U write_data_buffer [31:0] $end
+$var integer 32 V state [31:0] $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 V
+bx U
+bx T
+bx S
+bx R
+bx Q
+xP
+xO
+bx N
+bx M
+0L
+bx K
+bx J
+bx I
+bx H
+bx G
+bx F
+bx E
+bx D
+bx C
+bx B
+bx A
+bx @
+bx ?
+bx >
+bx =
+bx <
+bx ;
+bx :
+bx 9
+bx 8
+bx 7
+bx 6
+bx 5
+bx 4
+bx 3
+bz 2
+x1
+x0
+x/
+x.
+x-
+x,
+x+
+x*
+bz )
+z(
+z'
+z&
+x%
+x$
+x#
+x"
+bz !
+$end

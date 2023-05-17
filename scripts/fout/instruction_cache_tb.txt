@@ -1,0 +1,7 @@
+processor/sail-core/simulation/instruction_cache_tb_sim.v:12: error: Unknown module type: instruction_cache
+processor/sail-core/simulation/instruction_cache_tb_sim.v:22: error: Unknown module type: main_memory
+3 error(s) during elaboration.
+*** These modules were missing:
+        instruction_cache referenced 1 times.
+        main_memory referenced 1 times.
+***

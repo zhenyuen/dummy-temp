@@ -31,7 +31,7 @@ always
  #0.5 clk = ~clk;
 
 initial begin
-	$dumpfile ("adder.vcd");
+	$dumpfile ("alu.vcd");
  	$dumpvars;
 
  	//reg[31:0] A, B;
@@ -43,7 +43,7 @@ initial begin
  	FuncCode = 4'b0;
  	Opcode = 7'b0;
 
- 	#5
+ 	#1
 
  	//simulate AND instruction
  	A = 32'b00001111;
@@ -51,7 +51,7 @@ initial begin
  	FuncCode = 4'b0111;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate OR instruction
  	A = 32'b00001111;
@@ -59,7 +59,7 @@ initial begin
  	FuncCode = 4'b0110;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate ADD instruction
  	A = 32'd10000;
@@ -67,7 +67,7 @@ initial begin
  	FuncCode = 4'b0000;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate SUB instruction
  	A = 32'd10000;
@@ -75,7 +75,7 @@ initial begin
  	FuncCode = 4'b1000;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate SLT instuction
  	A = 32'b0;
@@ -83,7 +83,7 @@ initial begin
  	FuncCode = 4'b0010;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate SRL instruction
  	A = 32'b10000;
@@ -91,7 +91,7 @@ initial begin
  	FuncCode = 4'b0101;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate SRA instruction
  	A = 32'b1000;
@@ -99,7 +99,7 @@ initial begin
  	FuncCode = 4'b1101;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate SLL instruction
  	A = 32'b10;
@@ -107,7 +107,7 @@ initial begin
  	FuncCode = 4'b0001;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	//simulate XOR instruction
  	A = 32'b01010101;
@@ -115,7 +115,7 @@ initial begin
  	FuncCode = 4'b0100;
  	Opcode = 7'b0110011;
 
- 	#5
+ 	#1
 
  	$finish;
 end
