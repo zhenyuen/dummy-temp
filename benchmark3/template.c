@@ -30,6 +30,12 @@ int f2(int A, int B) {
 int
 main(void)
 {
+	volatile unsigned int *gDebugLedsMemoryMappedRegister = (unsigned int *)0x2000;
+	
+	*gDebugLedsMemoryMappedRegister = 0x00;
+	for (int j = 0; j < 400000; j++);
+	*gDebugLedsMemoryMappedRegister = 0xFF;
+
 	int A = 1062341;
 	int B = 2653345;
 	int result = 0;
@@ -41,6 +47,8 @@ main(void)
 			result = f2(A, B);
 		}
 	}
+	
+	*gDebugLedsMemoryMappedRegister = 0x00;
 	return 0;
 }
 

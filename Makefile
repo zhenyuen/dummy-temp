@@ -2,6 +2,9 @@
 	softwareblink \
 	hardwareblink \
 	bubblesort \
+	benchmark1 \
+	benchmark2 \
+	benchmark3 \
 	clean
 
 softwareblink:
@@ -32,4 +35,7 @@ clean:
 	cd hardwareblink; make clean
 	cd bubblesort; make clean
 	cd processor; make clean
+	cd benchmark1; make clean
+	cd benchmark2; make clean
+	cd benchmark3; make clean
 	rm -f build/*.bin
