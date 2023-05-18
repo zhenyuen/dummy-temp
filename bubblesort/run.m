@@ -1,5 +1,5 @@
 newnode		riscv
 sizemem		65536	
-srecl		"template-sf.sr"
+srecl		"bubblesort-sf.sr"
 run
 on
