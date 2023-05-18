@@ -25,3 +25,11 @@
 **/*.map
 
 .DS_Store
+simlog**
+sunflower**
+
+notes.txt
+
+**.s
+
+debug/
