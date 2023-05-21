@@ -54,7 +54,8 @@
  *	field is only unique across the instructions that are actually
  *	fed to the ALU.
  */
-module alu(ALUctl, A, B, ALUOut, Branch_Enable);
+module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
+	input clk;
 	input [6:0]		ALUctl;
 	input [31:0]		A;
 	input [31:0]		B;
@@ -70,6 +71,16 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	 *	the design should instead use a reset signal going to
 	 *	modules in the design.
 	 */
+
+	wire [31:0] dsp_add_out;
+
+	DSPAdd add(
+		.clk(clk),
+		.input1(A),
+		.input2(B),
+		.out(dsp_add_out)
+	);
+
 	initial begin
 		ALUOut = 32'b0;
 		Branch_Enable = 1'b0;
@@ -90,7 +101,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = A + B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = dsp_add_out;
 
 			/*
 			 *	SUBTRACT (the fields also matches all branches)
