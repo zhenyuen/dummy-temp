@@ -12,7 +12,7 @@ int main(void) {
 	int A = 1062;
     int B = -634;
     int result = 0;
-    for (int j = 0; j < 1000000; j++) {  // For loop to increase execution time.
+    for (int j = 0; j < 5000000; j++) {  // For loop to increase execution time.
         // Benchmark basic logical and arithmetic operations.
         result = j + j + A;     // ADD
     }
