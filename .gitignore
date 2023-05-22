@@ -33,3 +33,8 @@ notes.txt
 **.s
 
 debug/
+
+scripts/
+assets/
+dummy/
+verilog_examples/
