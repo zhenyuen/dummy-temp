@@ -50,8 +50,8 @@
 
 
 module ALUControl(FuncCode, ALUCtl, Opcode);
-	input [3:0]		FuncCode;
-	input [6:0]		Opcode;
+	input [3:0]			FuncCode;
+	input [6:0]			Opcode;
 	output reg [6:0]	ALUCtl;
 
 	/*

@@ -66,7 +66,7 @@ initial begin
  	B = 32'd0111;
  	FuncCode = 4'b0000;
  	Opcode = 7'b0110011;
-
+	
  	#5
 
  	//simulate SUB instruction

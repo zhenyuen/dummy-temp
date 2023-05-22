@@ -87,7 +87,7 @@ module cpu(
 	/*
 	 *	Pipeline Registers
 	 */
-	wire [63:0]		if_id_out;
+	wire [63:0]			if_id_out;
 	wire [177:0]		id_ex_out;
 	wire [154:0]		ex_mem_out;
 	wire [116:0]		mem_wb_out;

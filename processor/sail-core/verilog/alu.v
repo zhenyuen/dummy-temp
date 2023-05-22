@@ -54,7 +54,7 @@
  *	field is only unique across the instructions that are actually
  *	fed to the ALU.
  */
-module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
+module alu(clk, m_instr, ALUctl, A, B, ALUOut, Branch_Enable);
 	input clk;
 	input [6:0]		ALUctl;
 	input [31:0]		A;
@@ -73,8 +73,24 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 	 */
 
 	wire [31:0] dsp_add_out;
+	wire [31:0] dsp_mul_out;
+	wire [31:0] dsp_mulh_out;
 
 	DSPAdd add(
+		.clk(clk),
+		.input1(A),
+		.input2(B),
+		.out(dsp_add_out)
+	);
+
+	DSPMul mul(
+		.clk(clk),
+		.input1(A),
+		.input2(B),
+		.out(dsp_add_out)
+	);
+
+	DSPMulh mulh(
 		.clk(clk),
 		.input1(A),
 		.input2(B),
@@ -87,66 +103,102 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 	end
 
 	always @(ALUctl, A, B) begin
-		case (ALUctl[3:0])
+		
+		case (ALUctl[4:0])
 			/*
 			 *	AND (the fields also match ANDI and LUI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_AND:	ALUOut = A & B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_AND:	ALUOut = A & B;
 
 			/*
 			 *	OR (the fields also match ORI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_OR:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_OR:	ALUOut = A | B;
 
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = dsp_add_out;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_ADD:	ALUOut = dsp_add_out;
 
 			/*
 			 *	SUBTRACT (the fields also matches all branches)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = A - B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_SUB:	ALUOut = A - B;
 
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = $signed(A) < $signed(B) ? 32'b1 : 32'b0;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_SLT:	ALUOut = $signed(A) < $signed(B) ? 32'b1 : 32'b0;
 
 			/*
 			 *	SRL (the fields also matches the other SRL variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	ALUOut = A >> B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_SRL:	ALUOut = A >> B[4:0];
 
 			/*
 			 *	SRA (the fields also matches the other SRA variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = $signed(A) >>> B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_SRA:	ALUOut = $signed(A) >>> B[4:0];
 
 			/*
 			 *	SLL (the fields also match the other SLL variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLL:	ALUOut = A << B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_SLL:	ALUOut = A << B[4:0];
 
 			/*
 			 *	XOR (the fields also match other XOR variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_XOR:	ALUOut = A ^ B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_XOR:	ALUOut = A ^ B;
 
 			/*
 			 *	CSRRW  only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRW:	ALUOut = A;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_CSRRW:	ALUOut = A;
 
 			/*
 			 *	CSRRS only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRS:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_CSRRS:	ALUOut = A | B;
 
 			/*
 			 *	CSRRC only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRC:	ALUOut = (~A) & B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_CSRRC:	ALUOut = (~A) & B;
+
+			/*
+			 *	MUL only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_MUL: ALUOut = DSPMul;
+			
+			/*
+			 *	MULH only
+			 */	
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_MULH: ALUOut = DSPMulh;
+
+			/*
+			 *	MULHSU only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_MULHSU: ALUOut = {{32'd0, A} * B } >> 32;
+
+			/*
+			 *	MULHU only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_MULHU: ALUOut = {{32'd0, $unsigned(A)} * $unsigned(B)} >> 32;
+
+			/*
+			 *	DIV only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_DIV: ALUOut = A / B;
+
+			/*
+			 *	DIVU only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_DIVU: ALUOut = $unsigned(A) / $unsigned(B);
+
+			/*
+			 *	REM only
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_4to0_REM: ALUOut = A % B;
 
 			/*
 			 *	Should never happen.
