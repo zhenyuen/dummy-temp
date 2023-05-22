@@ -5,6 +5,7 @@
 	benchmark1 \
 	benchmark2 \
 	benchmark3 \
+	benchmark_dsp \
 	clean
 
 softwareblink:
