@@ -54,8 +54,7 @@
  *	field is only unique across the instructions that are actually
  *	fed to the ALU.
  */
-module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
-	input clk;
+module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	input [6:0]		ALUctl;
 	input [31:0]		A;
 	input [31:0]		B;
@@ -77,14 +76,12 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 	wire [31:0] dsp_sub_out;
 
 	DSPAdd add(
-		.clk(clk),
 		.input1(A),
 		.input2(B),
 		.out(dsp_add_out)
 	);
 
 	DSPSub sub(
-		.clk(clk),
 		.input1(A),
 		.input2(B),
 		.out(dsp_sub_out),

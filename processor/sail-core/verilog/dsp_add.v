@@ -1,5 +1,4 @@
-module DSPAdd(clk, input1, input2, out);
-    input clk;
+module DSPAdd(input1, input2, out);
     input [31:0] input1;
     input [31:0] input2;
     output [31:0] out;
@@ -11,7 +10,7 @@ module DSPAdd(clk, input1, input2, out);
 		.C(input2[31 : 16]),
 		.D(input2[15 : 0]),
 		.O(out),
-		.CLK(clk),
+		.CLK(),
 		.CE(1'b0), // clock enabled input? What happens if we disable?
 		.IRSTTOP(1'b0),
 		.IRSTBOT(1'b0),
