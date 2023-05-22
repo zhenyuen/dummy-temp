@@ -345,7 +345,6 @@ module cpu(
 		);
 
 	alu alu_main(
-			.clk(clk),
 			.ALUctl(id_ex_out[146:140]),
 			.A(wb_fwd1_mux_out),
 			.B(alu_mux_out),
