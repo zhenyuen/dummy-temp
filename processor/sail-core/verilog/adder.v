@@ -50,5 +50,9 @@ module adder(input1, input2, out);
 	input [31:0]	input2;
 	output [31:0]	out;
 
-	assign		out = input1 + input2;
+	DSPAdd add(
+		.input1(input1),
+		.input2(input2),
+		.out(out)
+	);
 endmodule
