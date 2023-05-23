@@ -40,7 +40,8 @@
  *		Branch Predictor FSM
  */
 
-module branch_predictor(
+module branch_predictor
+	#( parameter kSIZE = 6 )(
 		clk,
 		actual_branch_decision,
 		branch_decode_sig,
@@ -70,7 +71,10 @@ module branch_predictor(
 	/*
 	 *	internal state
 	 */
-	reg [1:0]	s;
+	reg [1:0]	s[0: 2 ** kSIZE - 1];
+	reg [kSIZE - 1:0]	addr_flag_1;
+	reg [kSIZE - 1:0]	addr_flag_2;
+	wire [kSIZE - 1:0]	addr_flag_curr;
 
 	reg		branch_mem_sig_reg;
 
@@ -84,8 +88,9 @@ module branch_predictor(
 	 *	the design should instead use a reset signal going to
 	 *	modules in the design and to thereby set the values.
 	 */
+	integer j;
 	initial begin
-		s = 2'b00;
+		for (j=0; j<2 ** kSIZE; j=j+1) s[j] = 2'b00;
 		branch_mem_sig_reg = 1'b0;
 	end
 
@@ -100,11 +105,14 @@ module branch_predictor(
 	 */
 	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
-			s[1] <= (s[1]&s[0]) | (s[0]&actual_branch_decision) | (s[1]&actual_branch_decision);
-			s[0] <= (s[1]&(!s[0])) | ((!s[0])&actual_branch_decision) | (s[1]&actual_branch_decision);
+			s[addr_flag_2][1] <= (s[addr_flag_2][1]&s[addr_flag_2][0]) | (s[addr_flag_2][0]&actual_branch_decision) | (s[addr_flag_2][1]&actual_branch_decision);
+			s[addr_flag_2][0] <= (s[addr_flag_2][1]&(!s[0])) | ((!s[addr_flag_2][0])&actual_branch_decision) | (s[addr_flag_2][1]&actual_branch_decision);
 		end
+		addr_flag_2 <= addr_flag_1;
+		addr_flag_1 <= addr_flag_curr;
 	end
 
 	assign branch_addr = in_addr + offset;
-	assign prediction = s[1] & branch_decode_sig;
+	assign addr_flag_curr = in_addr[kSIZE + 1:2];
+	assign prediction = s[addr_flag_curr][1] & branch_decode_sig;
 endmodule
