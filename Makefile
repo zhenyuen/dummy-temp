@@ -6,6 +6,7 @@
 	benchmark2 \
 	benchmark3 \
 	benchmark_dsp_addsub \
+	benchmark_bp \
 	clean
 
 softwareblink:
@@ -35,6 +36,10 @@ benchmark_dsp_addsub:
 	cd benchmark_dsp_addsub; make clean; make; make install
 	cd processor; make
 
+benchmark_bp:
+	cd benchmark_bp; make clean; make; make install
+	cd processor; make
+
 clean:
 	cd softwareblink; make clean
 	cd hardwareblink; make clean
@@ -43,4 +48,5 @@ clean:
 	cd benchmark1; make clean
 	cd benchmark2; make clean
 	cd benchmark3; make clean
+	cd benchmark_bp; make clean
 	rm -f build/*.bin
