@@ -14,8 +14,14 @@ int main(void) {
     int result = 0;
     for (int j = 0; j < 5000000; j++) {  // For loop to increase execution time.
         // Benchmark basic logical and arithmetic operations.
-        result = j + j + A;     // ADD
+        result = result + 1;    // ADD
     }
+
+    for (int j = 0; j < 1000000; j++) {  // For loop to increase execution time.
+        // Benchmark basic logical and arithmetic operations.
+        result = A + j;   // ADD
+    }
+
     result = 1696 + B;
     
     while (result != A) *gDebugLedsMemoryMappedRegister = 0x00;
