@@ -182,7 +182,7 @@ module cpu(
 			.out(pc_in)
 		);
 
-	adder pc_adder(
+	DSPAdd pc_adder(
 			.input1(32'b100),
 			.input2(pc_out),
 			.out(pc_adder_out)
@@ -331,7 +331,7 @@ module cpu(
 			.out(addr_adder_mux_out)
 		);
 
-	adder addr_adder(
+	DSPAdd addr_adder(
 			.input1(addr_adder_mux_out),
 			.input2(id_ex_out[139:108]),
 			.out(addr_adder_sum)
@@ -345,6 +345,7 @@ module cpu(
 		);
 
 	alu alu_main(
+			.clk(clk),
 			.ALUctl(id_ex_out[146:140]),
 			.A(wb_fwd1_mux_out),
 			.B(alu_mux_out),

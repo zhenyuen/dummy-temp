@@ -45,14 +45,13 @@
 
 
 
-module adder(input1, input2, out);
+module adder(input1, out);
 	input [31:0]	input1;
-	input [31:0]	input2;
 	output [31:0]	out;
 
 	DSPAdd add(
 		.input1(input1),
-		.input2(input2),
+		.input2(32'b100),
 		.out(out)
 	);
 endmodule

@@ -2,7 +2,6 @@ module DSPAdd(input1, input2, out);
     input [31:0] input1;
     input [31:0] input2;
     output [31:0] out;
-
 	SB_MAC16 i_sbmac16
 	(
 		.A(input1[31 : 16]),

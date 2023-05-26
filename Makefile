@@ -6,10 +6,7 @@
 	benchmark2 \
 	benchmark3 \
 	benchmark_dsp_addsub \
-<<<<<<< HEAD
 	benchmark_bp \
-=======
->>>>>>> zyc24-alu
 	clean
 
 softwareblink:

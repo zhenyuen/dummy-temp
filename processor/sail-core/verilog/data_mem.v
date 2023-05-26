@@ -39,15 +39,15 @@
 //Data cache
 
 module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
-	input			clk;
+	input				clk;
 	input [31:0]		addr;
 	input [31:0]		write_data;
-	input			memwrite;
-	input			memread;
-	input [3:0]		sign_mask;
+	input				memwrite;
+	input				memread;
+	input [3:0]			sign_mask;
 	output reg [31:0]	read_data;
 	output [7:0]		led;
-	output reg		clk_stall;	//Sets the clock high
+	output reg			clk_stall;	//Sets the clock high
 
 	/*
 	 *	led register

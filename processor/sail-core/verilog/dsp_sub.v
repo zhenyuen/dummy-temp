@@ -1,5 +1,6 @@
-module DSPSub(input1, input2, out, carry_out);
-    input [31:0] input1;
+module DSPSub(clk, input1, input2, out, carry_out);
+    input clk;
+	input [31:0] input1;
     input [31:0] input2;
     output [31:0] out;
 	output carry_out;
@@ -11,8 +12,8 @@ module DSPSub(input1, input2, out, carry_out);
 		.C(input1[31 : 16]),
 		.D(input1[15 : 0]),
 		.O(out),
-		.CLK(),
-		.CE(1'b0), // clock enabled input? What happens if we disable?
+		.CLK(clk),
+		.CE(1'b1), // clock enabled input? What happens if we disable?
 		.IRSTTOP(1'b0),
 		.IRSTBOT(1'b0),
 		.ORSTTOP(1'b0),
