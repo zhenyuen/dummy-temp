@@ -34,14 +34,14 @@
 	POSSIBILITY OF SUCH DAMAGE.
 */
 
-
+`include "../include/sail-core-defines.v"
 
 /*
  *		Branch Predictor FSM
  */
 
 module branch_predictor
-	#( parameter kSIZE = 6 )(
+	#(parameter kSIZE = `kSAIL_MICROARCHITECTURE_BRANCH_PREDICTOR_ADDRESSING_SIZE)(
 		clk,
 		actual_branch_decision,
 		branch_decode_sig,
@@ -71,15 +71,18 @@ module branch_predictor
 	/*
 	 *	internal state
 	 */
-	reg [1:0]	bht[0: 2 ** kSIZE - 1]; // Branch history table
-	// reg [31:0]	btb[0: 2 ** kSIZE - 1]; // Branch target buffer
+	reg [kSIZE - 1:0] 	branch_history; // left shift register
+	reg [1:0] 			bht[2 ** kSIZE - 1:0]; // branch prediction table
+	// reg 				bias[2 ** kSIZE - 1:0] // bias table
+	
+
 
 	reg [kSIZE - 1:0]	addr_flag_1;
 	reg [kSIZE - 1:0]	addr_flag_2;
 	wire [kSIZE - 1:0]	addr_flag_curr;
 
-
 	reg		branch_mem_sig_reg;
+
 
 	/*
 	 *	The `initial` statement below uses Yosys'bht support for nonzero
@@ -108,17 +111,16 @@ module branch_predictor
 	 */
 	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
+			branch_history <= {branch_history[kSIZE-2:0], actual_branch_decision};
 			bht[addr_flag_2][1] <= (bht[addr_flag_2][1]&bht[addr_flag_2][0]) | (bht[addr_flag_2][0]&actual_branch_decision) | (bht[addr_flag_2][1]&actual_branch_decision);
 			bht[addr_flag_2][0] <= (bht[addr_flag_2][1]&(!bht[0])) | ((!bht[addr_flag_2][0])&actual_branch_decision) | (bht[addr_flag_2][1]&actual_branch_decision);
 
-			// if ()
-			// btb[addr_flag_2] = 
 		end
 		addr_flag_2 <= addr_flag_1;
 		addr_flag_1 <= addr_flag_curr;
 	end
 
 	assign branch_addr = in_addr + offset;
-	assign addr_flag_curr = in_addr[kSIZE + 1:2];
+	assign addr_flag_curr = in_addr[kSIZE + 1:2] ^ branch_history;
 	assign prediction = bht[addr_flag_curr][1] & branch_decode_sig;
 endmodule

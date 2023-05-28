@@ -172,6 +172,9 @@ module cpu(
 	wire			decode_ctrl_mux_sel;
 	wire			inst_mux_sel;
 
+	// Mistake Register Out
+	wire		mistake_register_out;
+
 	/*
 	 *	Instruction Fetch Stage
 	 */
@@ -191,7 +194,7 @@ module cpu(
 	program_counter PC(
 			.inAddr(pc_in),
 			.outAddr(pc_out),
-			.clk(clk)
+			.clk(clk),
 		);
 
 	mux2to1 inst_mux(
@@ -475,15 +478,29 @@ module cpu(
 			.branch_decode_sig(cont_mux_out[6]),
 			.branch_mem_sig(ex_mem_out[6]),
 			.in_addr(if_id_out[31:0]),
+			.prediction(predict),
 			.offset(imm_out),
-			.branch_addr(branch_predictor_addr),
-			.prediction(predict)
+			.branch_addr(branch_predictor_addr)
 		);
 
+	// // Move branch prediction address into an external DSP
+	// DSPAdd pc_add_offset(
+	// 		.input1(if_id_out[31:0]),
+	// 		.input2(imm_out),
+	// 		.out(branch_predictor_addr)
+	// 	);
+
+	MistakeRegister mistake_register(
+			.clk(clk),
+			.mistake(mistake_trigger),
+			// .branch_mem_sig(ex_mem_out[6]),
+			.out(mistake_register_out)
+		);
+	
 	mux2to1 branch_predictor_mux(
 			.input0(fence_mux_out),
 			.input1(branch_predictor_addr),
-			.select(predict),
+			.select(predict & ~(mistake_register_out)),
 			.out(branch_predictor_mux_out)
 		);
 
