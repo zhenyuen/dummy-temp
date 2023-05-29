@@ -177,7 +177,7 @@ module cpu(
 	wire		mistake_register_out;
 	wire [31:0]		pc_add_offset_out;
 	wire [31:0]		pc_increment_out;
-	wire [63:0]		pc_adder_buffer_out;
+	// wire [63:0]		pc_adder_buffer_out;
 
 
 	/*
@@ -196,16 +196,18 @@ module cpu(
 			.out(pc_increment_out)
 		);
 	
-	DSPAdd pc_add_offset(
-			.input1(imm_out),
-			.input2(if_id_out[31:0]),
-			.out(pc_add_offset_out)
-		);
+	// DSPAdd pc_add_offset(
+	// 		.input1(imm_out),
+	// 		.input2(if_id_out[31:0]),
+	// 		.out(pc_add_offset_out)
+	// 	);
 
 	PCAdderBuffer pc_adder_buffer(
-			.clk(hfclk),
-			.data_in({pc_add_offset_out, pc_increment_out}),
-			.data_out(pc_adder_buffer_out)
+			.clk(clk),
+			.in_addr(pc_out),
+			.branch_mem_sig(ex_mem_out[6]),
+			.actual_target_addr(ex_mem_out[72:41]),
+			.target_addr(pc_add_offset_out)
 		);
 
 	program_counter PC(
@@ -223,7 +225,7 @@ module cpu(
 		);
 
 	mux2to1 fence_mux(
-			.input0(pc_adder_buffer_out[31:0]),
+			.input0(pc_increment_out),
 			.input1(pc_out),
 			.select(Fence_signal),
 			.out(fence_mux_out)
@@ -517,7 +519,7 @@ module cpu(
 	
 	mux2to1 branch_predictor_mux(
 			.input0(fence_mux_out),
-			.input1(pc_adder_buffer_out[63:32]),
+			.input1(pc_add_offset_out),
 			.select(predict & ~(mistake_register_out)),
 			.out(branch_predictor_mux_out)
 		);
