@@ -48,8 +48,8 @@ module branch_predictor
 		branch_mem_sig,
 		in_addr,
 		offset,
-		branch_addr,
-		prediction
+		// branch_addr,
+		prediction,
 	);
 
 	/*
@@ -65,7 +65,7 @@ module branch_predictor
 	/*
 	 *	outputs
 	 */
-	output [31:0]	branch_addr;
+	// output [31:0]	branch_addr;
 	output		prediction;
 
 	/*
@@ -83,7 +83,6 @@ module branch_predictor
 
 	reg		branch_mem_sig_reg;
 
-
 	/*
 	 *	The `initial` statement below uses Yosys'bht support for nonzero
 	 *	initial values:
@@ -95,9 +94,11 @@ module branch_predictor
 	 *	modules in the design and to thereby set the values.
 	 */
 	integer j;
+
 	initial begin
 		for (j=0; j<2 ** kSIZE; j=j+1) bht[j] = 2'b00;
 		branch_mem_sig_reg = 1'b0;
+		branch_history = kSIZE'b0;
 	end
 
 	always @(negedge clk) begin
@@ -112,6 +113,7 @@ module branch_predictor
 	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
 			branch_history <= {branch_history[kSIZE-2:0], actual_branch_decision};
+
 			bht[addr_flag_2][1] <= (bht[addr_flag_2][1]&bht[addr_flag_2][0]) | (bht[addr_flag_2][0]&actual_branch_decision) | (bht[addr_flag_2][1]&actual_branch_decision);
 			bht[addr_flag_2][0] <= (bht[addr_flag_2][1]&(!bht[0])) | ((!bht[addr_flag_2][0])&actual_branch_decision) | (bht[addr_flag_2][1]&actual_branch_decision);
 
@@ -120,7 +122,7 @@ module branch_predictor
 		addr_flag_1 <= addr_flag_curr;
 	end
 
-	assign branch_addr = in_addr + offset;
+	// assign branch_addr = in_addr + offset;
 	assign addr_flag_curr = in_addr[kSIZE + 1:2] ^ branch_history;
 	assign prediction = bht[addr_flag_curr][1] & branch_decode_sig;
 endmodule

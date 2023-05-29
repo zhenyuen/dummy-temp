@@ -44,6 +44,7 @@
 
 module cpu(
 			clk,
+			hfclk,
 			inst_mem_in,
 			inst_mem_out,
 			data_mem_out,
@@ -57,6 +58,7 @@ module cpu(
 	 *	Input Clock
 	 */
 	input clk;
+	input hfclk;
 
 	/*
 	 *	instruction memory input
@@ -137,7 +139,7 @@ module cpu(
 
 	/*
 	 *	Memory access stage
-	 */
+	 */ 
 	wire [31:0]		auipc_mux_out;
 	wire [31:0]		mem_csrr_mux_out;
 
@@ -163,7 +165,6 @@ module cpu(
 	/*
 	 *	Branch Predictor
 	 */
-	wire [31:0]		pc_adder_out;
 	wire [31:0]		branch_predictor_addr;
 	wire			predict;
 	wire [31:0]		branch_predictor_mux_out;
@@ -174,6 +175,10 @@ module cpu(
 
 	// Mistake Register Out
 	wire		mistake_register_out;
+	wire [31:0]		pc_add_offset_out;
+	wire [31:0]		pc_increment_out;
+	wire [63:0]		pc_adder_buffer_out;
+
 
 	/*
 	 *	Instruction Fetch Stage
@@ -185,10 +190,22 @@ module cpu(
 			.out(pc_in)
 		);
 
-	DSPAdd pc_adder(
+	DSPAdd pc_increment(
 			.input1(32'b100),
 			.input2(pc_out),
-			.out(pc_adder_out)
+			.out(pc_increment_out)
+		);
+	
+	DSPAdd pc_add_offset(
+			.input1(imm_out),
+			.input2(if_id_out[31:0]),
+			.out(pc_add_offset_out)
+		);
+
+	PCAdderBuffer pc_adder_buffer(
+			.clk(hfclk),
+			.data_in({pc_add_offset_out, pc_increment_out}),
+			.data_out(pc_adder_buffer_out)
 		);
 
 	program_counter PC(
@@ -196,6 +213,7 @@ module cpu(
 			.outAddr(pc_out),
 			.clk(clk),
 		);
+
 
 	mux2to1 inst_mux(
 			.input0(inst_mem_out),
@@ -205,7 +223,7 @@ module cpu(
 		);
 
 	mux2to1 fence_mux(
-			.input0(pc_adder_out),
+			.input0(pc_adder_buffer_out[31:0]),
 			.input1(pc_out),
 			.select(Fence_signal),
 			.out(fence_mux_out)
@@ -480,7 +498,7 @@ module cpu(
 			.in_addr(if_id_out[31:0]),
 			.prediction(predict),
 			.offset(imm_out),
-			.branch_addr(branch_predictor_addr)
+			// .branch_addr(branch_predictor_addr)
 		);
 
 	// // Move branch prediction address into an external DSP
@@ -499,7 +517,7 @@ module cpu(
 	
 	mux2to1 branch_predictor_mux(
 			.input0(fence_mux_out),
-			.input1(branch_predictor_addr),
+			.input1(pc_adder_buffer_out[63:32]),
 			.select(predict & ~(mistake_register_out)),
 			.out(branch_predictor_mux_out)
 		);

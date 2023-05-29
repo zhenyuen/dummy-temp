@@ -241,8 +241,8 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		case (state)
 			IDLE: begin
 				clk_stall <= 0;
-					memread_buf <= memread;
-					memwrite_buf <= memwrite;
+				memread_buf <= memread;
+				memwrite_buf <= memwrite;
 				if(memwrite==1'b1 || memread==1'b1) begin
 					write_data_buffer <= write_data; // 32 bits
 					addr_buf <= addr; // 32 bits
