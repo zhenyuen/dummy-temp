@@ -81,7 +81,7 @@ module instruction_cache(clk, addr, out, clk_stall, mem_block_addr, readmem, new
 
 	//split address buffer signal into tag, index and offset
 	wire[5:0] addr_buf_tag;
-	wire[2:0] addr_buf_index;
+	wire[2:0] addr_buff_index;
 	wire[2:0] addr_buf_word_offset;
 	assign addr_buf_tag = addr_buf[13:8];
 	assign addr_buf_index = addr_buf[7:5];
