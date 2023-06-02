@@ -243,37 +243,22 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 	parameter WRITE_BUFFER_1 = 0;
 	parameter WRITE_BUFFER_2 = 1;
 
-	// always @(posedge hfclk) begin
-	// 	case (buffer_state)
-	// 		WRITE_BUFFER_1: begin
-	// 			if(state == IDLE) begin
-	// 				memread_buf <= memread;
-	// 				memwrite_buf <= memwrite;
-	// 				addr_buf <= addr;
-	// 				sign_mask_buf <= sign_mask;
-	// 				buffer_state <= WRITE_BUFFER_2;
-	// 			end
-	// 		end
-
-	// 		WRITE_BUFFER_2: begin
-	// 			if(state == IDLE) begin
-	// 				write_data_buffer <= write_data;
-	// 				buffer_state <= WRITE_BUFFER_1;
-	// 			end
-	// 		end
-	// 	endcase
-	// end
-
-	always @(posedge clk) begin
+	always @(posedge hfclk) begin
 		case (state)
 			IDLE: begin
-				clk_stall <= 0;
 				memread_buf <= memread;
 				memwrite_buf <= memwrite;
 				write_data_buffer <= write_data;
 				addr_buf <= addr;
 				sign_mask_buf <= sign_mask;
+			end
+		endcase
+	end
 
+	always @(posedge clk) begin
+		case (state)
+			IDLE: begin
+				clk_stall <= 0;
 				if(memwrite==1'b1 || memread==1'b1) begin
 					state <= READ_BUFFER;
 					clk_stall <= 1;
@@ -287,21 +272,10 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 				 */
 				word_buf <= data_block[addr_buf_block_addr - 32'h1000];
 				if(memread_buf==1'b1) begin
-					// state <= READ;
-					clk_stall <= 0;
-					read_data <= read_buf;
-					state <= IDLE;
+					state <= READ;
 				end
 				else if(memwrite_buf == 1'b1) begin
-					// state <= WRITE;
-					clk_stall <= 0;
-
-					/*
-					*	Subtract out the size of the instruction memory.
-					*	(Bad practice: The constant should be a `define).
-					*/
-					data_block[addr_buf_block_addr - 32'h1000] <= replacement_word;
-					state <= IDLE;
+					state <= WRITE;
 				end
 			end
 

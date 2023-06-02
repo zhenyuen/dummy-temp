@@ -98,8 +98,8 @@ module top (led);
 	);
 
 	data_mem data_mem_inst(
-			// .hfclk(hfclk),
-			.clk(hfclk),
+			.hfclk(hfclk),
+			.clk(clk),
 			.addr(data_addr),
 			.write_data(data_WrData),
 			.memwrite(data_memwrite), 
@@ -111,4 +111,6 @@ module top (led);
 		);
 
 	assign clk_proc = (data_clk_stall) ? 1'b1 : clk;
+	// assign clk_proc = clk;
+
 endmodule
