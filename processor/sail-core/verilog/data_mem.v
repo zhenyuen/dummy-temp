@@ -247,6 +247,13 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 	// 	endcase
 	// end
 
+	wire [31:0] dsp_sub_out;
+
+	DSPSub dsp_out(
+		.input1({22'b0, addr_buf_block_addr}),
+		.input2({32'h1000}),
+		.out(dsp_sub_out)
+	);
 
 	/*
 	 *	State machine
@@ -271,7 +278,7 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 				 *	Subtract out the size of the instruction memory.
 				 *	(Bad practice: The constant should be a `define).
 				 */
-				word_buf <= data_block[addr_buf_block_addr - 32'h1000];
+				word_buf <= data_block[dsp_sub_out];
 				if(memread_buf==1'b1) begin
 					state <= READ;
 				end
@@ -293,7 +300,7 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 				 *	Subtract out the size of the instruction memory.
 				 *	(Bad practice: The constant should be a `define).
 				 */
-				data_block[addr_buf_block_addr - 32'h1000] <= replacement_word;
+				data_block[dsp_sub_out] <= replacement_word;
 				state <= IDLE;
 			end
 
