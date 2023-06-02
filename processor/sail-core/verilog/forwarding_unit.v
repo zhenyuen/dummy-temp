@@ -63,6 +63,12 @@ module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite,
 	wire		MEM_fwd1;
 	wire		MEM_fwd2;
 
+	integer state;
+	parameter IDLE;
+	parameter MEM_HAZARD;
+	
+
+
 	/*
 	 *	if data hazard detected, assign RegWrite to decide if...
 	 *	result MEM or WB stage should be rerouted to ALU input
