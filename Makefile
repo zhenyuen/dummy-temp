@@ -1,21 +1,52 @@
-DESIGN	= sail
-GB3_ROOT = /gb3-resources
+.PHONY: \
+	softwareblink \
+	hardwareblink \
+	bubblesort \
+	benchmark1 \
+	benchmark2 \
+	benchmark3 \
+	benchmark_dsp_addsub \
+	benchmark_bp \
+	clean
 
-sail-nextpnr:
-	mkdir -p $(GB3_ROOT)/build
-	cp programs/data.hex verilog/
-	cp programs/program.hex verilog/
-	yosys -q $(GB3_ROOT)/processor/yscripts/$(DESIGN).ys
-	nextpnr-ice40 --up5k --package uwg30 --json $(DESIGN).json --pcf pcf/$(DESIGN).pcf --asc $(DESIGN).asc --freq 17 --seed 1
-	icetime -p pcf/sail.pcf -P uwg30 -d up5k -t sail.asc
-	icepack $(DESIGN).asc design.bin
-	cp design.bin $(GB3_ROOT)/build/
+softwareblink:
+	cd softwareblink; make clean; make; make install
+	cd processor; make
 
+hardwareblink:
+	cd hardwareblink; make clean; make;
+
+bubblesort:
+	cd bubblesort; make clean; make; make install
+	cd processor; make
+
+benchmark1:
+	cd benchmark1; make clean; make; make install
+	cd processor; make
+
+benchmark2:
+	cd benchmark2; make clean; make; make install
+	cd processor; make
+
+benchmark3:
+	cd benchmark3; make clean; make; make install
+	cd processor; make
+
+benchmark_dsp_addsub:
+	cd benchmark_dsp_addsub; make clean; make; make install
+	cd processor; make
+
+benchmark_bp:
+	cd benchmark_bp; make clean; make; make install
+	cd processor; make
 
 clean:
-	rm -f *.json *.blif *.asc *.bin
-	rm -f programs/*.hex
-	rm -f verilog/*.hex
-
-
-	
+	cd softwareblink; make clean
+	cd hardwareblink; make clean
+	cd bubblesort; make clean
+	cd processor; make clean
+	cd benchmark1; make clean
+	cd benchmark2; make clean
+	cd benchmark3; make clean
+	cd benchmark_bp; make clean
+	rm -f build/*.bin
