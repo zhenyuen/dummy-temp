@@ -435,12 +435,21 @@ module cpu(
 			.WB_fwd2(wfwd2)
 		);
 
-	mux2to1 mem_fwd1_mux(
-			.input0(id_ex_out[75:44]),
-			.input1(dataMemOut_fwd_mux_out),
-			.select(mfwd1),
-			.out(mem_fwd1_mux_out)
-		);
+	FwdMux1 fwd1_mux(
+		.id_ex_in(id_ex_out[75:44]),
+		.dataMemOut_fwd_mux_in(dataMemOut_fwd_mux_out),
+		.wb_mux_in(wb_mux_out),
+		.mfwd1(mfwd1),
+		.wfwd1(wfwd1),
+		.out(wb_fwd1_mux_out)
+	);
+
+	// mux2to1 mem_fwd1_mux(
+	// 		.input0(id_ex_out[75:44]),
+	// 		.input1(dataMemOut_fwd_mux_out),
+	// 		.select(mfwd1),
+	// 		.out(mem_fwd1_mux_out)
+	// 	);
 
 	mux2to1 mem_fwd2_mux(
 			.input0(id_ex_out[107:76]),
@@ -449,12 +458,12 @@ module cpu(
 			.out(mem_fwd2_mux_out)
 		);
 
-	mux2to1 wb_fwd1_mux(
-			.input0(mem_fwd1_mux_out),
-			.input1(wb_mux_out),
-			.select(wfwd1),
-			.out(wb_fwd1_mux_out)
-		);
+	// mux2to1 wb_fwd1_mux(
+	// 		.input0(mem_fwd1_mux_out),
+	// 		.input1(wb_mux_out),
+	// 		.select(wfwd1),
+	// 		.out(wb_fwd1_mux_out)
+	// 	);
 
 	mux2to1 wb_fwd2_mux(
 			.input0(mem_fwd2_mux_out),
