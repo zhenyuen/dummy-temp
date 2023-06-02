@@ -520,7 +520,7 @@ module cpu(
 
 	//Data Memory Connections
 	assign data_mem_addr = lui_result;
-	assign data_mem_WrData = wb_fwd2_mux_out;
+	assign data_mem_WrData = id_ex_out[107:76];
 	assign data_mem_memwrite = ex_cont_mux_out[4];
 	assign data_mem_memread = ex_cont_mux_out[5];
 	assign data_mem_sign_mask = id_ex_out[150:147];
