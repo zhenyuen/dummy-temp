@@ -42,7 +42,8 @@
 
 
 
-module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite, WB_RegWrite, EX_CSRR_Addr, MEM_CSRR_Addr, WB_CSRR_Addr, MEM_CSRR, WB_CSRR, MEM_fwd1, MEM_fwd2, WB_fwd1, WB_fwd2);
+// module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite, WB_RegWrite, EX_CSRR_Addr, MEM_CSRR_Addr, WB_CSRR_Addr, MEM_CSRR, WB_CSRR, MEM_fwd1, MEM_fwd2, WB_fwd1, WB_fwd2, MEM_fwd);
+module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite, WB_RegWrite, EX_CSRR_Addr, MEM_CSRR_Addr, WB_CSRR_Addr, MEM_CSRR, WB_CSRR, WB_fwd1, WB_fwd2, MEM_fwd);
 	input [4:0]	rs1;
 	input [4:0]	rs2;
 	input [4:0]	MEM_RegWriteAddr;
@@ -54,10 +55,13 @@ module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite,
 	input [11:0]	WB_CSRR_Addr;
 	input		MEM_CSRR;
 	input		WB_CSRR;
-	output		MEM_fwd1;
-	output		MEM_fwd2;
+
+	output		MEM_fwd;
 	output		WB_fwd1;
 	output		WB_fwd2;
+
+	wire		MEM_fwd1;
+	wire		MEM_fwd2;
 
 	/*
 	 *	if data hazard detected, assign RegWrite to decide if...
@@ -65,7 +69,8 @@ module ForwardingUnit(rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegWrite,
 	 */
 	assign MEM_fwd1 = (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs1)?MEM_RegWrite:1'b0;
 	assign MEM_fwd2 = (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs2 && MEM_RegWrite == 1'b1) || (EX_CSRR_Addr == MEM_CSRR_Addr && MEM_CSRR == 1'b1)?1'b1:1'b0;
-
+	assign MEM_fwd = MEM_fwd1 | MEM_fwd2;
+	
 	/*
 	 *	from wb stage
 	 */
