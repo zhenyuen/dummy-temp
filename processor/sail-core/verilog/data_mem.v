@@ -38,8 +38,9 @@
 
 //Data cache
 
-module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
+module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
 	input				clk;
+	input				hfclk;
 	input [31:0]		addr;
 	input [31:0]		write_data;
 	input				memwrite;
@@ -234,6 +235,19 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		end
 	end
 
+	// always @(posedge hfclk) begin
+	// 	case (state)
+	// 		IDLE: begin
+	// 			memread_buf <= memread;
+	// 			memwrite_buf <= memwrite;
+	// 			write_data_buffer <= write_data; // 32 bits
+	// 			addr_buf <= addr; // 32 bits
+	// 			sign_mask_buf <= sign_mask;		
+	// 		end
+	// 	endcase
+	// end
+
+
 	/*
 	 *	State machine
 	 */
@@ -241,9 +255,9 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		case (state)
 			IDLE: begin
 				clk_stall <= 0;
+				if(memwrite==1'b1 || memread==1'b1) begin
 					memread_buf <= memread;
 					memwrite_buf <= memwrite;
-				if(memwrite==1'b1 || memread==1'b1) begin
 					write_data_buffer <= write_data; // 32 bits
 					addr_buf <= addr; // 32 bits
 					sign_mask_buf <= sign_mask;				
