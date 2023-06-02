@@ -47,6 +47,7 @@ module top (led);
 	wire		clk_proc;
 	wire		data_clk_stall;
 	
+	wire		hfclk;
 	wire		clk;
 	reg		ENCLKHF		= 1'b1;	// Plock enable
 	reg		CLKHF_POWERUP	= 1'b1;	// Power up the HFOSC circuit
@@ -58,7 +59,12 @@ module top (led);
 	SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
 		.CLKHFEN(ENCLKHF),
 		.CLKHFPU(CLKHF_POWERUP),
-		.CLKHF(clk)
+		.CLKHF(hfclk)
+	);
+
+	ClockDivider clk_div(
+		.clk_in(hfclk),
+		.clk_out(clk)
 	);
 
 	/*
@@ -92,7 +98,8 @@ module top (led);
 	);
 
 	data_mem data_mem_inst(
-			.clk(clk),
+			.hfclk(hfclk),
+			.clk(hfclk),
 			.addr(data_addr),
 			.write_data(data_WrData),
 			.memwrite(data_memwrite), 
