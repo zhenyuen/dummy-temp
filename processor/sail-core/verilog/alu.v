@@ -54,8 +54,7 @@
  *	field is only unique across the instructions that are actually
  *	fed to the ALU.
  */
-module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
-	input clk;
+module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	input [6:0]		ALUctl;
 	input [31:0]		A;
 	input [31:0]		B;
@@ -96,7 +95,6 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 	);
 
 	DSPSub sub(
-		.clk(clk),
 		.input1(A),
 		.input2(B),
 		.out(dsp_sub_out),
@@ -107,6 +105,16 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 		ALUOut = 32'b0;
 		Branch_Enable = 1'b0;
 	end
+
+	wire [31:0] and_out = A & B;
+	wire [31:0] or_out = A | B;
+	// wire [31:0] add_out;
+	// wire [31:0] sub_out;
+	// wire [31:0] slt_out = dsp_sub_out[31] ? 32'b1 : 32'b0;
+	wire [31:0] xor_out = A ^ B;
+	wire [31:0] csrrw_out = A;
+	wire [31:0] csrrs_out = or_out;
+	wire [31:0] csrrc_out = (~A) & B;
 
 	always @(ALUctl, A, B) begin
 
@@ -120,19 +128,18 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 		sl_2_r = 32'b0;
 		sl_4_r = 32'b0;
 		sl_8_r = 32'b0;
-
-
+		
 
 		case (ALUctl[3:0])
 			/*
 			 *	AND (the fields also match ANDI and LUI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_AND:	ALUOut = A & B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_AND:	ALUOut = and_out;
 
 			/*
 			 *	OR (the fields also match ORI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_OR:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_OR:	ALUOut = or_out;
 
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
@@ -153,6 +160,7 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 			 *	SRL (the fields also matches the other SRL variants)
 			 */
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	begin // ALUOut = A >> B[4:0];
+				// SRL
 				if (B[0] == 1'b1)
 					sr_1_r = {sr_fill_r[31], A[31:1]};
 				else
@@ -178,7 +186,6 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 				else
 					ALUOut = sr_8_r;
 			end
-
 
 			/*
 			 *	SRA (the fields also matches the other SRA variants)
@@ -251,22 +258,22 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	XOR (the fields also match other XOR variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_XOR:	ALUOut = A ^ B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_XOR:	ALUOut = xor_out;
 
 			/*
 			 *	CSRRW  only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRW:	ALUOut = A;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRW:	ALUOut = csrrw_out;
 
 			/*
 			 *	CSRRS only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRS:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRS:	ALUOut = csrrs_out;
 
 			/*
 			 *	CSRRC only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRC:	ALUOut = (~A) & B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRC:	ALUOut = csrrc_out;
 
 			/*
 			 *	Should never happen.
@@ -275,14 +282,29 @@ module alu(clk, ALUctl, A, B, ALUOut, Branch_Enable);
 		endcase
 	end
 
+	wire beq;
+	wire bne;
+	wire blt;
+	wire bge;
+	wire bltu;
+	wire bgeu;
+
+ 	assign beq = (ALUOut == 0);
+	assign bne = ~beq;
+	assign blt = (ALUOut[31]);
+	assign bge = ~blt;
+	assign bltu = (~carry_out);
+	assign bgeu =  ~bltu;
+
+
 	always @(ALUctl, ALUOut, A, B) begin
 		case (ALUctl[6:4])
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BEQ:	Branch_Enable = (ALUOut == 0);
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = !(ALUOut == 0);
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = (ALUOut[31]); // ($signed(A) < $signed(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = (~ALUOut[31]); // ($signed(A) >= $signed(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = (~carry_out); // ($unsigned(A) < $unsigned(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = carry_out; // ($unsigned(A) >= $unsigned(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BEQ:	Branch_Enable = beq;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = bne;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = blt; // ($signed(A) < $signed(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = bge; // ($signed(A) >= $signed(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = bltu; // ($unsigned(A) < $unsigned(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = bgeu; // ($unsigned(A) >= $unsigned(B));
 
 			default:	Branch_Enable = 1'b0;
 		endcase
