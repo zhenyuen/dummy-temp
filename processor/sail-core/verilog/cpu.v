@@ -160,8 +160,9 @@ module cpu(
 	// wire			mfwd1;
 	// wire			mfwd2;
 	wire			mfwd;
-	wire			wfwd1;
-	wire			wfwd2;
+	wire			wfwd;
+	// wire			wfwd1;
+	// wire			wfwd2;
 
 	/*
 	 *	Branch Predictor
@@ -329,7 +330,7 @@ module cpu(
 
 	mux2to1 addr_adder_mux(
 			.input0(id_ex_out[43:12]),
-			.input1(wb_fwd1_mux_out),
+			.input1(id_ex_out[75:44]),
 			.select(id_ex_out[11]),
 			.out(addr_adder_mux_out)
 		);
@@ -341,7 +342,7 @@ module cpu(
 		);
 
 	mux2to1 alu_mux(
-			.input0(wb_fwd2_mux_out),
+			.input0(id_ex_out[107:76]),
 			.input1(id_ex_out[139:108]),
 			.select(id_ex_out[10]),
 			.out(alu_mux_out)
@@ -349,7 +350,7 @@ module cpu(
 
 	alu alu_main(
 			.ALUctl(id_ex_out[146:140]),
-			.A(wb_fwd1_mux_out),
+			.A(id_ex_out[75:44]),
 			.B(alu_mux_out),
 			.ALUOut(alu_result),
 			.Branch_Enable(alu_branch_enable)
@@ -365,7 +366,7 @@ module cpu(
 	//EX/MEM Pipeline Register
 	ex_mem ex_mem_reg(
 			.clk(clk),
-			.data_in({id_ex_out[177:166], id_ex_out[155:151], wb_fwd2_mux_out, lui_result, alu_branch_enable, addr_adder_sum, id_ex_out[43:12], ex_cont_mux_out[8:0]}),
+			.data_in({id_ex_out[177:166], id_ex_out[155:151], id_ex_out[107:76], lui_result, alu_branch_enable, addr_adder_sum, id_ex_out[43:12], ex_cont_mux_out[8:0]}),
 			.data_out(ex_mem_out)
 		);
 
@@ -430,10 +431,11 @@ module cpu(
 			.MEM_CSRR(ex_mem_out[3]),
 			.WB_CSRR(mem_wb_out[3]),
 			.MEM_fwd(mfwd),
+			.WB_fwd(wfwd)
 			// .MEM_fwd1(mfwd1),
 			// .MEM_fwd1(mfwd2),
-			.WB_fwd1(wfwd1),
-			.WB_fwd2(wfwd2)
+			// .WB_fwd1(wfwd1),
+			// .WB_fwd2(wfwd2)
 		);
 
 	// mux2to1 mem_fwd1_mux(
@@ -450,21 +452,21 @@ module cpu(
 	// 		.out(mem_fwd2_mux_out)
 	// 	);
 
-	mux2to1 wb_fwd1_mux(
-			// .input0(mem_fwd1_mux_out),
-			.input0(id_ex_out[75:44]),
-			.input1(wb_mux_out),
-			.select(wfwd1),
-			.out(wb_fwd1_mux_out)
-		);
+	// mux2to1 wb_fwd1_mux(
+	// 		// .input0(mem_fwd1_mux_out),
+	// 		.input0(id_ex_out[75:44]),
+	// 		.input1(wb_mux_out),
+	// 		.select(wfwd1),
+	// 		.out(wb_fwd1_mux_out)
+	// 	);
 
-	mux2to1 wb_fwd2_mux(
-			// .input0(mem_fwd2_mux_out),
-			.input0(id_ex_out[107:76]),
-			.input1(wb_mux_out),
-			.select(wfwd2),
-			.out(wb_fwd2_mux_out)
-		);
+	// mux2to1 wb_fwd2_mux(
+	// 		// .input0(mem_fwd2_mux_out),
+	// 		.input0(id_ex_out[107:76]),
+	// 		.input1(wb_mux_out),
+	// 		.select(wfwd2),
+	// 		.out(wb_fwd2_mux_out)
+	// 	);
 
 	// mux2to1 dataMemOut_fwd_mux(
 	// 		.input0(ex_mem_out[105:74]),
@@ -511,7 +513,7 @@ module cpu(
 	//OR gate assignments, used for flushing
 	assign decode_ctrl_mux_sel = pcsrc | mistake_trigger | mfwd;
 	assign inst_mux_sel = pcsrc | predict | mistake_trigger | Fence_signal;
-	assign ex_cont_mux_sel = pcsrc | mfwd;
+	assign ex_cont_mux_sel = pcsrc | mfwd | wfwd; 
 
 	//Instruction Memory Connections
 	assign inst_mem_in = pc_out;
