@@ -44,6 +44,7 @@
 
 module cpu(
 			clk,
+			clk_master,
 			inst_mem_in,
 			inst_mem_out,
 			data_mem_out,
@@ -58,7 +59,7 @@ module cpu(
 	 *	Input Clock
 	 */
 	input clk;
-
+	input clk_master;
 	output	hazard_stall;
 
 
@@ -369,7 +370,8 @@ module cpu(
 
 	//EX/MEM Pipeline Register
 	ex_mem ex_mem_reg(
-			.clk(clk),
+			.clk(clk_master),
+			.hazard_stall(hazard_stall),
 			.data_in({id_ex_out[177:166], id_ex_out[155:151], wb_fwd2_mux_out, lui_result, alu_branch_enable, addr_adder_sum, id_ex_out[43:12], ex_cont_mux_out[8:0]}),
 			.data_out(ex_mem_out)
 		);
@@ -423,7 +425,7 @@ module cpu(
 
 	//Forwarding Unit
 	ForwardingUnit forwarding_unit(
-			.clk(clk),
+			.clk(clk_master),
 			.rs1(id_ex_out[160:156]),
 			.rs2(id_ex_out[165:161]),
 			.MEM_RegWriteAddr(ex_mem_out[142:138]),

@@ -65,18 +65,42 @@ module ForwardingUnit(clk, rs1, rs2, MEM_RegWriteAddr, WB_RegWriteAddr, MEM_RegW
 	output		MEM_fwd2;
 	output		WB_fwd1;
 	output		WB_fwd2;
-	output reg		hazard_stall;
+	output reg hazard_stall;
 
-	always @(posedge clk) begin
-		MEM_fwd1_reg <= (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs1)?MEM_RegWrite:1'b0;
-		MEM_fwd2_reg <= (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs2 && MEM_RegWrite == 1'b1) || (EX_CSRR_Addr == MEM_CSRR_Addr && MEM_CSRR == 1'b1)?1'b1:1'b0;
 
 	/*
-	 *	from wb stage
+	 *	Possible states
 	 */
-		WB_fwd1_reg <= (WB_RegWriteAddr != 5'b0 && WB_RegWriteAddr ==  rs1 && WB_RegWriteAddr != MEM_RegWriteAddr)?WB_RegWrite:1'b0;
-		WB_fwd2_reg <= (WB_RegWriteAddr != 5'b0 && WB_RegWriteAddr ==  rs2 && WB_RegWrite == 1'b1 && WB_RegWriteAddr != MEM_RegWriteAddr) || (EX_CSRR_Addr == WB_CSRR_Addr && WB_CSRR == 1'b1 && MEM_CSRR_Addr != WB_CSRR_Addr)?1'b1:1'b0;
-		hazard_stall <= MEM_fwd1_reg | MEM_fwd2_reg | WB_fwd1_reg | WB_fwd2_reg;
+	parameter		IDLE = 0;
+	parameter		HAZARD = 1;
+	parameter		RESOLVED = 2;
+
+	integer state;
+
+
+	initial begin
+		state = 0;
+	end
+
+
+	always @(posedge clk) begin
+		case (state)
+			IDLE: begin
+				MEM_fwd1_reg <= (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs1)?MEM_RegWrite:1'b0;
+				MEM_fwd2_reg <= (MEM_RegWriteAddr != 5'b0 && MEM_RegWriteAddr ==  rs2 && MEM_RegWrite == 1'b1) || (EX_CSRR_Addr == MEM_CSRR_Addr && MEM_CSRR == 1'b1)?1'b1:1'b0;
+				WB_fwd1_reg <= (WB_RegWriteAddr != 5'b0 && WB_RegWriteAddr ==  rs1 && WB_RegWriteAddr != MEM_RegWriteAddr)?WB_RegWrite:1'b0;
+				WB_fwd2_reg <= (WB_RegWriteAddr != 5'b0 && WB_RegWriteAddr ==  rs2 && WB_RegWrite == 1'b1 && WB_RegWriteAddr != MEM_RegWriteAddr) || (EX_CSRR_Addr == WB_CSRR_Addr && WB_CSRR == 1'b1 && MEM_CSRR_Addr != WB_CSRR_Addr)?1'b1:1'b0;
+				hazard_stall <= MEM_fwd1_reg | MEM_fwd2_reg | WB_fwd1_reg | WB_fwd2_reg;
+				state <= hazard_stall? HAZARD : IDLE;
+			end
+
+			HAZARD: begin
+				state <= IDLE;
+				hazard_stall <= 0;
+			end
+
+
+		endcase
 	end
 
 

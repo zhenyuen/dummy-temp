@@ -97,8 +97,8 @@ endmodule
 
 /* EX/MEM pipeline registers */ 
 module ex_mem (clk, data_in, data_out, hazard_stall);
-	// input			hazard_stall;
 	input			clk;
+	input 			hazard_stall;
 	input [154:0]		data_in;
 	output reg[154:0]	data_out;
 
@@ -117,8 +117,10 @@ module ex_mem (clk, data_in, data_out, hazard_stall);
 	end
 
 	always @(posedge clk) begin
-		data_out <= data_in;
+		if (hazard_stall) data_out[137:41] <= data_in[137:41];
+		else data_out <= data_in;
 	end
+
 endmodule
 
 
