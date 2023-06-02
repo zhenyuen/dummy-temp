@@ -176,5 +176,7 @@ int main(void) {
         maxindex--;
     }
     *gDebugLedsMemoryMappedRegister = 0x00;
+
+    // while(1);
     return 0;
 }
