@@ -78,6 +78,7 @@ module top (led);
 	wire		data_memwrite;
 	wire		data_memread;
 	wire[3:0]	data_sign_mask;
+	wire hazard_stall;
 
 
 	cpu processor(
@@ -89,7 +90,9 @@ module top (led);
 		.data_mem_WrData(data_WrData),
 		.data_mem_memwrite(data_memwrite),
 		.data_mem_memread(data_memread),
-		.data_mem_sign_mask(data_sign_mask)
+		.data_mem_sign_mask(data_sign_mask),
+		.hazard_stall(hazard_stall)
+
 	);
 
 	instruction_memory inst_mem( 
@@ -105,9 +108,11 @@ module top (led);
 			.memread(data_memread), 
 			.read_data(data_out),
 			.sign_mask(data_sign_mask),
-			.led(led),
+			.led(),
 			.clk_stall(data_clk_stall)
 		);
 
-	assign clk_proc = (data_clk_stall) ? 1'b1 : clk;
+	assign clk_proc = (data_clk_stall | hazard_stall) ? 1'b1 : clk;
+	assign led = hazard_stall? 8'b1 : 8'b0;
+
 endmodule

@@ -96,7 +96,8 @@ endmodule
 
 
 /* EX/MEM pipeline registers */ 
-module ex_mem (clk, data_in, data_out);
+module ex_mem (clk, data_in, data_out, hazard_stall);
+	// input			hazard_stall;
 	input			clk;
 	input [154:0]		data_in;
 	output reg[154:0]	data_out;

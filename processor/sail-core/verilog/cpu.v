@@ -51,12 +51,16 @@ module cpu(
 			data_mem_WrData,
 			data_mem_memwrite,
 			data_mem_memread,
-			data_mem_sign_mask
+			data_mem_sign_mask,
+			hazard_stall
 		);
 	/*
 	 *	Input Clock
 	 */
 	input clk;
+
+	output	hazard_stall;
+
 
 	/*
 	 *	instruction memory input
@@ -174,6 +178,7 @@ module cpu(
 
 	// Mistake Register Out
 	wire		mistake_register_out;
+
 
 	/*
 	 *	Instruction Fetch Stage
@@ -418,6 +423,7 @@ module cpu(
 
 	//Forwarding Unit
 	ForwardingUnit forwarding_unit(
+			.clk(clk),
 			.rs1(id_ex_out[160:156]),
 			.rs2(id_ex_out[165:161]),
 			.MEM_RegWriteAddr(ex_mem_out[142:138]),
@@ -432,7 +438,8 @@ module cpu(
 			.MEM_fwd1(mfwd1),
 			.MEM_fwd2(mfwd2),
 			.WB_fwd1(wfwd1),
-			.WB_fwd2(wfwd2)
+			.WB_fwd2(wfwd2),
+			.hazard_stall(hazard_stall)
 		);
 
 	mux2to1 mem_fwd1_mux(
