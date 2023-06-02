@@ -98,7 +98,7 @@ module top (led);
 	);
 
 	data_mem data_mem_inst(
-			.hfclk(hfclk),
+			// .hfclk(hfclk),
 			.clk(hfclk),
 			.addr(data_addr),
 			.write_data(data_WrData),
