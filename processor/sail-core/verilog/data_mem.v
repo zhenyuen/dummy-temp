@@ -39,8 +39,13 @@
 //Data cache
 
 module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
+<<<<<<< HEAD
 	input				clk;
 	input				hfclk;
+=======
+	input			clk;
+	input			hfclk;
+>>>>>>> 6-stage-pipeline-fix
 	input [31:0]		addr;
 	input [31:0]		write_data;
 	input				memwrite;
@@ -64,9 +69,17 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 	 *	Possible states
 	 */
 	parameter		IDLE = 0;
+	parameter		LOAD_BUFFER=8;
 	parameter		READ_BUFFER = 1;
 	parameter		READ = 2;
+	parameter		READ_COMPLETE = 4;
 	parameter		WRITE = 3;
+	parameter		WRITE_COMPLETE = 5;
+	// parameter		POST_IDLE_1 = 4;
+	// parameter		POST_IDLE_2 = 5;
+	// parameter 		POST_READ_BUFFER_1 = 6;
+	// parameter 		POST_READ_BUFFER_2 = 7;
+
 
 	/*
 	 *	Line buffer
@@ -279,10 +292,14 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 				 *	(Bad practice: The constant should be a `define).
 				 */
 				word_buf <= data_block[dsp_sub_out];
+<<<<<<< HEAD
 				if(memread_buf==1'b1) begin
+=======
+				if(memread_buf) begin
+>>>>>>> 6-stage-pipeline-fix
 					state <= READ;
 				end
-				else if(memwrite_buf == 1'b1) begin
+				else if(memwrite_buf) begin
 					state <= WRITE;
 				end
 			end
@@ -305,10 +322,94 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 			end
 
 		endcase
+
+		// CUSTOM
+
+		// clk_stall = 1;
+		// addr_buf <= addr;
+		// write_data_buffer <= write_data;
+		// sign_mask_buf <= sign_mask;
+		// word_buf <= data_block[dsp_sub_out];
+
+		// if(memread) begin
+		// 	read_data = read_buf;
+		// 	clk_stall = 0;
+		// end
+		// else if(memwrite) begin
+		// 	data_block[dsp_sub_out] = replacement_word;
+		// 	clk_stall = 0;
+		// end
 	end
 
 	/*
 	 *	Test led
 	 */
 	assign led = led_reg[7:0];
+endmodule
+
+
+module DSPSub(clk, input1, input2, out);
+    input [31:0] input1;
+    input [31:0] input2;
+	input clk;
+    output [31:0] out;
+
+
+	SB_MAC16 i_sbmac16
+	(
+		.A(input2[31:16]),
+		.B(input2[15:0]),
+		.C(input1[31:16]),
+		.D(input1[15:0]),
+		.O(out),
+		.CLK(clk),
+		.CE(1'b0), // clock enabled input? What happens if we disable?
+		.IRSTTOP(1'b0),
+		.IRSTBOT(1'b0),
+		.ORSTTOP(1'b0),
+		.ORSTBOT(1'b0),
+		.AHOLD(1'b0),
+		.BHOLD(1'b0),
+		.CHOLD(1'b0),
+		.DHOLD(1'b0),
+		.OHOLDTOP(1'b0),
+		.OHOLDBOT(1'b0),
+		.OLOADTOP(1'b0),
+		.OLOADBOT(1'b0),
+		.ADDSUBTOP(1'b1),
+		.ADDSUBBOT(1'b1),
+		.CO(),
+		.CI(1'b0),
+		.ACCUMCI(1'b0),
+		.ACCUMCO(),
+		.SIGNEXTIN(1'b0),
+		.SIGNEXTOUT()
+	);
+
+    // add_sub_32_bypassed_unsigned [24:0] 001_0010000_0010000_0000_0000
+    // bypass, take from adder/subtractor output directly, do not store in accumulator register
+    defparam i_sbmac16.B_SIGNED = 1'b0 ;
+    defparam i_sbmac16.A_SIGNED = 1'b0 ;
+    defparam i_sbmac16.MODE_8x8 = 1'b1 ;
+
+    defparam i_sbmac16.BOTADDSUB_CARRYSELECT = 2'b00 ;
+    defparam i_sbmac16.BOTADDSUB_UPPERINPUT = 1'b1 ;
+    defparam i_sbmac16.BOTADDSUB_LOWERINPUT = 2'b00 ;
+    defparam i_sbmac16.BOTOUTPUT_SELECT = 2'b00 ; //lower [15:0] of adder/subtractor
+
+    defparam i_sbmac16.TOPADDSUB_CARRYSELECT = 2'b00 ;
+    defparam i_sbmac16.TOPADDSUB_UPPERINPUT = 1'b1 ;
+    defparam i_sbmac16.TOPADDSUB_LOWERINPUT = 2'b00 ;
+    defparam i_sbmac16.TOPOUTPUT_SELECT = 2'b00 ; // higher [31:16] of adder/subtractor
+
+    defparam i_sbmac16.PIPELINE_16x16_MULT_REG2 = 1'b0 ;
+    defparam i_sbmac16.PIPELINE_16x16_MULT_REG1 = 1'b0; 
+    defparam i_sbmac16.BOT_8x8_MULT_REG = 1'b0;
+    defparam i_sbmac16.TOP_8x8_MULT_REG = 1'b0;
+
+    defparam i_sbmac16.D_REG = 1'b0;
+    defparam i_sbmac16.B_REG = 1'b0;
+    defparam i_sbmac16.A_REG = 1'b0;
+    defparam i_sbmac16.C_REG = 1'b0;
+     
 endmodule

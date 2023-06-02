@@ -51,13 +51,14 @@ module cpu(
 			data_mem_WrData,
 			data_mem_memwrite,
 			data_mem_memread,
-			data_mem_sign_mask
+			data_mem_sign_mask,
+			led
 		);
 	/*
 	 *	Input Clock
 	 */
 	input clk;
-
+	output [7:0]led;
 	/*
 	 *	instruction memory input
 	 */
@@ -78,6 +79,7 @@ module cpu(
 	 *	Program Counter
 	 */
 	wire [31:0]		pc_mux0;
+	wire [31:0]		mem_fwd_mux0;
 	wire [31:0]		pc_in;
 	wire [31:0]		pc_out;
 	wire			pcsrc;
@@ -134,6 +136,7 @@ module cpu(
 	wire			alu_branch_enable;
 	wire [31:0]		alu_result;
 	wire [31:0]		lui_result;
+	wire 			ex_cont_mux_sel;
 
 	/*
 	 *	Memory access stage
@@ -157,6 +160,7 @@ module cpu(
 	wire [31:0]		wb_fwd2_mux_out;
 	wire			mfwd1;
 	wire			mfwd2;
+	wire			mfwd;
 	wire			wfwd1;
 	wire			wfwd2;
 
@@ -182,7 +186,7 @@ module cpu(
 			.input0(pc_mux0),
 			.input1(ex_mem_out[72:41]),
 			.select(pcsrc),
-			.out(pc_in)
+			.out(mem_fwd_mux0)
 		);
 
 	DSPAdd pc_adder(
@@ -214,10 +218,14 @@ module cpu(
 	/*
 	 *	IF/ID Pipeline Register
 	 */
+	wire [31:0] prev_1_pc_addr_out;
+	wire [31:0] prev_2_pc_addr_out;
 	if_id if_id_reg(
 			.clk(clk),
 			.data_in({inst_mux_out, pc_out}),
-			.data_out(if_id_out)
+			.data_out(if_id_out),
+			.prev_1_pc_addr_out(prev_1_pc_addr_out),
+			.prev_2_pc_addr_out(prev_2_pc_addr_out)
 		);
 
 	/*
@@ -323,7 +331,7 @@ module cpu(
 	mux2to1 ex_cont_mux(
 			.input0({23'b0, id_ex_out[8:0]}),
 			.input1(32'b0),
-			.select(pcsrc),
+			.select(ex_cont_mux_sel),
 			.out(ex_cont_mux_out)
 		);
 
@@ -429,35 +437,39 @@ module cpu(
 			.WB_CSRR_Addr(mem_wb_out[116:105]),
 			.MEM_CSRR(ex_mem_out[3]),
 			.WB_CSRR(mem_wb_out[3]),
+			.MEM_fwd(mfwd),
 			.MEM_fwd1(mfwd1),
 			.MEM_fwd2(mfwd2),
 			.WB_fwd1(wfwd1),
-			.WB_fwd2(wfwd2)
+			.WB_fwd2(wfwd2),
+			.clk(clk)
 		);
 
-	mux2to1 mem_fwd1_mux(
-			.input0(id_ex_out[75:44]),
-			.input1(dataMemOut_fwd_mux_out),
-			.select(mfwd1),
-			.out(mem_fwd1_mux_out)
-		);
+	// mux2to1 mem_fwd1_mux(
+	// 		.input0(id_ex_out[75:44]),
+	// 		.input1(dataMemOut_fwd_mux_out),
+	// 		.select(mfwd1),
+	// 		.out(mem_fwd1_mux_out)
+	// 	);
 
-	mux2to1 mem_fwd2_mux(
-			.input0(id_ex_out[107:76]),
-			.input1(dataMemOut_fwd_mux_out),
-			.select(mfwd2),
-			.out(mem_fwd2_mux_out)
-		);
+	// mux2to1 mem_fwd2_mux(
+	// 		.input0(id_ex_out[107:76]),
+	// 		.input1(dataMemOut_fwd_mux_out),
+	// 		.select(mfwd2),
+	// 		.out(mem_fwd2_mux_out)
+	// 	);
 
 	mux2to1 wb_fwd1_mux(
-			.input0(mem_fwd1_mux_out),
+			// .input0(mem_fwd1_mux_out),
+			.input0(id_ex_out[75:44]),
 			.input1(wb_mux_out),
 			.select(wfwd1),
 			.out(wb_fwd1_mux_out)
 		);
 
 	mux2to1 wb_fwd2_mux(
-			.input0(mem_fwd2_mux_out),
+			// .input0(mem_fwd2_mux_out),
+			.input0(id_ex_out[107:76]),
 			.input1(wb_mux_out),
 			.select(wfwd2),
 			.out(wb_fwd2_mux_out)
@@ -520,8 +532,13 @@ module cpu(
 		);
 
 	//OR gate assignments, used for flushing
-	assign decode_ctrl_mux_sel = pcsrc | mistake_trigger;
-	assign inst_mux_sel = pcsrc | predict | mistake_trigger | Fence_signal;
+	assign decode_ctrl_mux_sel = pcsrc | mistake_trigger | mfwd | mfwd1;
+	assign inst_mux_sel = pcsrc | predict | mistake_trigger | Fence_signal | mfwd | mfwd1;
+	assign ex_cont_mux_sel = pcsrc | mfwd | mfwd1;
+	
+	// assign decode_ctrl_mux_sel = pcsrc | mistake_trigger | mfwd2 | mfwd1;
+	// assign inst_mux_sel = pcsrc | predict | mistake_trigger | Fence_signal | mfwd2 | mfwd1;
+	// assign ex_cont_mux_sel = pcsrc | mfwd2 | mfwd1;
 
 	//Instruction Memory Connections
 	assign inst_mem_in = pc_out;
@@ -532,4 +549,16 @@ module cpu(
 	assign data_mem_memwrite = ex_cont_mux_out[4];
 	assign data_mem_memread = ex_cont_mux_out[5];
 	assign data_mem_sign_mask = id_ex_out[150:147];
+
+
+	mux2to1 mem_hazard_mux(
+		.input0(mem_fwd_mux0),
+		// .input1(mem_fwd_mux0),
+		.input1(prev_2_pc_addr_out),
+		.select(mfwd),
+		.out(pc_in)
+	);
+
+	assign led = mfwd? 8'b1: 8'b0;
+
 endmodule

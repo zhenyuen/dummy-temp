@@ -144,21 +144,35 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
 			 */
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD: 	ALUOut = dsp_add_out;
 														
 			/*
 			 *	SUBTRACT (the fields also matches all branches)
 			 */
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = dsp_sub_out;
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = add_out;
+
+			/*
+			 *	SUBTRACT (the fields also matches all branches)
+			 */
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = sub_out;
+>>>>>>> 6-stage-pipeline-fix
 
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
 			 */
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = dsp_sub_out[31] ? 32'b1 : 32'b0;
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = slt_out;
+>>>>>>> 6-stage-pipeline-fix
 
 			/*
 			 *	SRL (the fields also matches the other SRL variants)
 			 */
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	begin // ALUOut = A >> B[4:0];
 				// SRL
 				if (B[0] == 1'b1)
@@ -186,10 +200,14 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 				else
 					ALUOut = sr_8_r;
 			end
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	ALUOut = srl_out;
+>>>>>>> 6-stage-pipeline-fix
 
 			/*
 			 *	SRA (the fields also matches the other SRA variants)
 			 */
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	begin // ALUOut = $signed(A) >>> B[4:0];
 				// Arithmetic shift? Fill with 1's if MSB set
 				if (A[31] == 1'b1)
@@ -223,15 +241,22 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 					ALUOut = sr_8_r;
 			end
 
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = sra_out;
+>>>>>>> 6-stage-pipeline-fix
 
 			/*
 			 *	SLL (the fields also match the other SLL variants)
 			 */
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLL:	begin // ALUOut = A << B[4:0];
 				if (B[0] == 1'b1)
 					sl_1_r = {A[30:0],1'b0};
 				else
 					sl_1_r = A;
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLL:	ALUOut = sll_out;
+>>>>>>> 6-stage-pipeline-fix
 
 				if (B[1] == 1'b1)
 					sl_2_r = {sl_1_r[29:0],2'b00};
@@ -282,6 +307,10 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 		endcase
 	end
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6-stage-pipeline-fix
 	wire beq;
 	wire bne;
 	wire blt;
@@ -291,20 +320,36 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 
  	assign beq = (ALUOut == 0);
 	assign bne = ~beq;
+<<<<<<< HEAD
 	assign blt = (ALUOut[31]);
 	assign bge = ~blt;
 	assign bltu = (~carry_out);
 	assign bgeu =  ~bltu;
 
 
+=======
+	assign blt = ($signed(A) < $signed(B));
+	assign bge = ~blt;
+	assign bltu = ($unsigned(A) < $unsigned(B));
+	assign bgeu =  ~bltu;
+
+	
+>>>>>>> 6-stage-pipeline-fix
 	always @(ALUctl, ALUOut, A, B) begin
 		case (ALUctl[6:4])
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BEQ:	Branch_Enable = beq;
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = bne;
+<<<<<<< HEAD
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = blt; // ($signed(A) < $signed(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = bge; // ($signed(A) >= $signed(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = bltu; // ($unsigned(A) < $unsigned(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = bgeu; // ($unsigned(A) >= $unsigned(B));
+=======
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = blt;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = bge;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = bltu;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = bgeu;
+>>>>>>> 6-stage-pipeline-fix
 
 			default:	Branch_Enable = 1'b0;
 		endcase

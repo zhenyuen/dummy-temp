@@ -150,7 +150,11 @@ int main(void) {
         135, 111, 201, 253, 222, 145, 87,  156, 27,  56,  166, 195};
 
     const int bsort_input_len = 2000;
+<<<<<<< HEAD
     const int kSpinDelay = 800000;
+=======
+    const int kSpinDelay = 400000;
+>>>>>>> 6-stage-pipeline-fix
 
     volatile unsigned int *gDebugLedsMemoryMappedRegister =
         (unsigned int *)0x2000;
@@ -159,10 +163,18 @@ int main(void) {
     int maxindex = bsort_input_len - 1;
 
     *gDebugLedsMemoryMappedRegister = 0x00;
+<<<<<<< HEAD
     for (int j = 0; j < kSpinDelay; j++);
     *gDebugLedsMemoryMappedRegister = 0xFF;
     
     while (maxindex > 0) {
+=======
+    for (int j = 0; j < kSpinDelay; j++)
+        ;
+    *gDebugLedsMemoryMappedRegister = 0xFF;
+    while (maxindex > 0) {
+        // *gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
+>>>>>>> 6-stage-pipeline-fix
         for (i = 0; i < maxindex; i++) {
             if (bsort_input[i] > bsort_input[i + 1]) {
                 /*		swap		*/
@@ -174,9 +186,8 @@ int main(void) {
 
         maxindex--;
     }
-
     *gDebugLedsMemoryMappedRegister = 0x00;
 
-    // while (1);
+    // while(1);
     return 0;
 }

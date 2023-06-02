@@ -16,3 +16,6 @@ clean:
 	rm -f *.json *.blif *.asc *.bin
 	rm -f programs/*.hex
 	rm -f verilog/*.hex
+
+
+	
