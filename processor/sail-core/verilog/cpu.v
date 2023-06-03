@@ -361,12 +361,26 @@ module cpu(
 			.select(id_ex_out[9]),
 			.out(lui_result)
 		);
+	
+	wire [31:0] lui_result_2;
+	mux2to1 lui_mux_2(
+		.input0(temp_alu_out),
+		.input1(ex_mem_reg_lui_out[31:0]),
+		.select(ex_mem_reg_lui_out[32]),
+		.out(lui_result_2)
+	);
 
 	//EX/MEM Pipeline Register
+	wire [32:0] ex_mem_reg_lui_out;
+	wire [31:0] temp_alu_out;
 	ex_mem ex_mem_reg(
 			.clk(clk),
 			.data_in({id_ex_out[177:166], id_ex_out[155:151], wb_fwd2_mux_out, lui_result, alu_branch_enable, addr_adder_sum, id_ex_out[43:12], ex_cont_mux_out[8:0]}),
-			.data_out(ex_mem_out)
+			.data_out(ex_mem_out),
+			.lui_in({id_ex_out[9], id_ex_out[139:108]}),
+			.lui_out(ex_mem_reg_lui_out),
+			.temp_alu_in(alu_result),
+			.temp_alu_out(temp_alu_out)
 		);
 
 	//Memory Access Stage
@@ -381,7 +395,7 @@ module cpu(
 		);
 
 	mux2to1 auipc_mux(
-			.input0(ex_mem_out[105:74]),
+			.input0(lui_result_2),
 			.input1(ex_mem_out[72:41]),
 			.select(ex_mem_out[8]),
 			.out(auipc_mux_out)
@@ -397,7 +411,7 @@ module cpu(
 	//MEM/WB Pipeline Register
 	mem_wb mem_wb_reg(
 			.clk(clk),
-			.data_in({ex_mem_out[154:143], ex_mem_out[142:138], data_mem_out, mem_csrr_mux_out, ex_mem_out[105:74], ex_mem_out[3:0]}),
+			.data_in({ex_mem_out[154:143], ex_mem_out[142:138], data_mem_out, mem_csrr_mux_out, lui_result_2, ex_mem_out[3:0]}),
 			.data_out(mem_wb_out)
 		);
 
@@ -465,6 +479,7 @@ module cpu(
 
 	mux2to1 dataMemOut_fwd_mux(
 			.input0(ex_mem_out[105:74]),
+			// .input0(),
 			.input1(data_mem_out),
 			.select(ex_mem_out[1]),
 			.out(dataMemOut_fwd_mux_out)
@@ -527,7 +542,8 @@ module cpu(
 	assign inst_mem_in = pc_out;
 
 	//Data Memory Connections
-	assign data_mem_addr = lui_result;
+	assign data_mem_addr = id_ex_out[9]? id_ex_out[139:108] : alu_result;
+	// assign data_mem_addr = ex_mem_out[105:74];
 	assign data_mem_WrData = wb_fwd2_mux_out;
 	assign data_mem_memwrite = ex_cont_mux_out[4];
 	assign data_mem_memread = ex_cont_mux_out[5];

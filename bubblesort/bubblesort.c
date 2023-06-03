@@ -177,6 +177,6 @@ int main(void) {
 
     *gDebugLedsMemoryMappedRegister = 0x00;
 
-    // while (1);
+    while (1);
     return 0;
 }

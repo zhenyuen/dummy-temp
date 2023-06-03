@@ -96,10 +96,14 @@ endmodule
 
 
 /* EX/MEM pipeline registers */ 
-module ex_mem (clk, data_in, data_out);
+module ex_mem (clk, data_in, data_out, lui_in, lui_out, temp_alu_in, temp_alu_out);
 	input			clk;
 	input [154:0]		data_in;
 	output reg[154:0]	data_out;
+	input [32:0]		lui_in;
+	input [31:0]		temp_alu_in;
+	output reg[32:0]	lui_out;
+	output reg[31:0]	temp_alu_out;
 
 	/*
 	 *	The `initial` statement below uses Yosys's support for nonzero
@@ -113,10 +117,13 @@ module ex_mem (clk, data_in, data_out);
 	 */
 	initial begin
 		data_out = 155'b0;
+		lui_out = 32'b0;
 	end
 
 	always @(posedge clk) begin
 		data_out <= data_in;
+		lui_out <= lui_in;
+		temp_alu_out <= temp_alu_in;
 	end
 endmodule
 
