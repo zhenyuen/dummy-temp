@@ -77,16 +77,16 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 
 
 
-	// Registers
-	reg [31:16]     sr_fill_r;
-	reg [31:0]      sr_1_r;
-	reg [31:0]      sr_2_r;
-	reg [31:0]      sr_4_r;
-	reg [31:0]      sr_8_r;
-	reg [31:0]      sl_1_r;
-	reg [31:0]      sl_2_r;
-	reg [31:0]      sl_4_r;
-	reg [31:0]      sl_8_r;
+	// // Registers
+	// reg [31:16]     sr_fill_r;
+	// reg [31:0]      sr_1_r;
+	// reg [31:0]      sr_2_r;
+	// reg [31:0]      sr_4_r;
+	// reg [31:0]      sr_8_r;
+	// reg [31:0]      sl_1_r;
+	// reg [31:0]      sl_2_r;
+	// reg [31:0]      sl_4_r;
+	// reg [31:0]      sl_8_r;
 
 	DSPAdd add(
 		.input1(A),
@@ -118,16 +118,16 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 
 	always @(ALUctl, A, B) begin
 
-		sr_fill_r = 16'b0;
-		sr_1_r = 32'b0;
-		sr_2_r = 32'b0;
-		sr_4_r = 32'b0;
-		sr_8_r = 32'b0;
+		// sr_fill_r = 16'b0;
+		// sr_1_r = 32'b0;
+		// sr_2_r = 32'b0;
+		// sr_4_r = 32'b0;
+		// sr_8_r = 32'b0;
 
-		sl_1_r = 32'b0; // Shift left
-		sl_2_r = 32'b0;
-		sl_4_r = 32'b0;
-		sl_8_r = 32'b0;
+		// sl_1_r = 32'b0; // Shift left
+		// sl_2_r = 32'b0;
+		// sl_4_r = 32'b0;
+		// sl_8_r = 32'b0;
 		
 
 		case (ALUctl[3:0])
@@ -161,30 +161,31 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			 */
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	begin // ALUOut = A >> B[4:0];
 				// SRL
-				if (B[0] == 1'b1)
-					sr_1_r = {sr_fill_r[31], A[31:1]};
-				else
-					sr_1_r = A;
+				// if (B[0] == 1'b1)
+				// 	sr_1_r = {sr_fill_r[31], A[31:1]};
+				// else
+				// 	sr_1_r = A;
 
-				if (B[1] == 1'b1)
-					sr_2_r = {sr_fill_r[31:30], sr_1_r[31:2]};
-				else
-					sr_2_r = sr_1_r;
+				// if (B[1] == 1'b1)
+				// 	sr_2_r = {sr_fill_r[31:30], sr_1_r[31:2]};
+				// else
+				// 	sr_2_r = sr_1_r;
 
-				if (B[2] == 1'b1)
-					sr_4_r = {sr_fill_r[31:28], sr_2_r[31:4]};
-				else
-					sr_4_r = sr_2_r;
+				// if (B[2] == 1'b1)
+				// 	sr_4_r = {sr_fill_r[31:28], sr_2_r[31:4]};
+				// else
+				// 	sr_4_r = sr_2_r;
 
-				if (B[3] == 1'b1)
-					sr_8_r = {sr_fill_r[31:24], sr_4_r[31:8]};
-				else
-					sr_8_r = sr_4_r;
+				// if (B[3] == 1'b1)
+				// 	sr_8_r = {sr_fill_r[31:24], sr_4_r[31:8]};
+				// else
+				// 	sr_8_r = sr_4_r;
 
-				if (B[4] == 1'b1)
-					ALUOut = {sr_fill_r[31:16], sr_8_r[31:16]};
-				else
-					ALUOut = sr_8_r;
+				// if (B[4] == 1'b1)
+				// 	ALUOut = {sr_fill_r[31:16], sr_8_r[31:16]};
+				// else
+				// 	ALUOut = sr_8_r;
+				ALUOut = A >> B[4:0];
 			end
 
 			/*
@@ -192,35 +193,36 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			 */
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	begin // ALUOut = $signed(A) >>> B[4:0];
 				// Arithmetic shift? Fill with 1's if MSB set
-				if (A[31] == 1'b1)
-					sr_fill_r = 16'b1111111111111111;
-				else
-					sr_fill_r = 16'b0000000000000000;
+				// if (A[31] == 1'b1)
+				// 	sr_fill_r = 16'b1111111111111111;
+				// else
+				// 	sr_fill_r = 16'b0000000000000000;
 
-				if (B[0] == 1'b1)
-					sr_1_r = {sr_fill_r[31], A[31:1]};
-				else
-					sr_1_r = A;
+				// if (B[0] == 1'b1)
+				// 	sr_1_r = {sr_fill_r[31], A[31:1]};
+				// else
+				// 	sr_1_r = A;
 
-				if (B[1] == 1'b1)
-					sr_2_r = {sr_fill_r[31:30], sr_1_r[31:2]};
-				else
-					sr_2_r = sr_1_r;
+				// if (B[1] == 1'b1)
+				// 	sr_2_r = {sr_fill_r[31:30], sr_1_r[31:2]};
+				// else
+				// 	sr_2_r = sr_1_r;
 
-				if (B[2] == 1'b1)
-					sr_4_r = {sr_fill_r[31:28], sr_2_r[31:4]};
-				else
-					sr_4_r = sr_2_r;
+				// if (B[2] == 1'b1)
+				// 	sr_4_r = {sr_fill_r[31:28], sr_2_r[31:4]};
+				// else
+				// 	sr_4_r = sr_2_r;
 
-				if (B[3] == 1'b1)
-					sr_8_r = {sr_fill_r[31:24], sr_4_r[31:8]};
-				else
-					sr_8_r = sr_4_r;
+				// if (B[3] == 1'b1)
+				// 	sr_8_r = {sr_fill_r[31:24], sr_4_r[31:8]};
+				// else
+				// 	sr_8_r = sr_4_r;
 
-				if (B[4] == 1'b1)
-					ALUOut = {sr_fill_r[31:16], sr_8_r[31:16]};
-				else
-					ALUOut = sr_8_r;
+				// if (B[4] == 1'b1)
+				// 	ALUOut = {sr_fill_r[31:16], sr_8_r[31:16]};
+				// else
+				// 	ALUOut = sr_8_r;
+				ALUOut = $signed(A) >> B[4:0];
 			end
 
 
@@ -228,30 +230,31 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			 *	SLL (the fields also match the other SLL variants)
 			 */
 			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLL:	begin // ALUOut = A << B[4:0];
-				if (B[0] == 1'b1)
-					sl_1_r = {A[30:0],1'b0};
-				else
-					sl_1_r = A;
+				// if (B[0] == 1'b1)
+				// 	sl_1_r = {A[30:0],1'b0};
+				// else
+				// 	sl_1_r = A;
 
-				if (B[1] == 1'b1)
-					sl_2_r = {sl_1_r[29:0],2'b00};
-				else
-					sl_2_r = sl_1_r;
+				// if (B[1] == 1'b1)
+				// 	sl_2_r = {sl_1_r[29:0],2'b00};
+				// else
+				// 	sl_2_r = sl_1_r;
 
-				if (B[2] == 1'b1)
-					sl_4_r = {sl_2_r[27:0],4'b0000};
-				else
-					sl_4_r = sl_2_r;
+				// if (B[2] == 1'b1)
+				// 	sl_4_r = {sl_2_r[27:0],4'b0000};
+				// else
+				// 	sl_4_r = sl_2_r;
 
-				if (B[3] == 1'b1)
-					sl_8_r = {sl_4_r[23:0],8'b00000000};
-				else
-					sl_8_r = sl_4_r;
+				// if (B[3] == 1'b1)
+				// 	sl_8_r = {sl_4_r[23:0],8'b00000000};
+				// else
+				// 	sl_8_r = sl_4_r;
 
-				if (B[4] == 1'b1)
-					ALUOut = {sl_8_r[15:0],16'b0000000000000000};
-				else
-					ALUOut = sl_8_r;
+				// if (B[4] == 1'b1)
+				// 	ALUOut = {sl_8_r[15:0],16'b0000000000000000};
+				// else
+				// 	ALUOut = sl_8_r;
+				ALUOut = A << B[4:0];
 			end
 			
 			
