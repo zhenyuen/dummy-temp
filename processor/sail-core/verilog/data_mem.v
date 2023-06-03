@@ -38,8 +38,9 @@
 
 //Data cache
 
-module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
+module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
 	input				clk;
+	input				hfclk;
 	input [31:0]		addr;
 	input [31:0]		write_data;
 	input				memwrite;
@@ -63,9 +64,17 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	 *	Possible states
 	 */
 	parameter		IDLE = 0;
+	parameter		LOAD_BUFFER=8;
 	parameter		READ_BUFFER = 1;
 	parameter		READ = 2;
+	parameter		READ_COMPLETE = 4;
 	parameter		WRITE = 3;
+	parameter		WRITE_COMPLETE = 5;
+	// parameter		POST_IDLE_1 = 4;
+	// parameter		POST_IDLE_2 = 5;
+	// parameter 		POST_READ_BUFFER_1 = 6;
+	// parameter 		POST_READ_BUFFER_2 = 7;
+
 
 	/*
 	 *	Line buffer
@@ -234,6 +243,26 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		end
 	end
 
+	// always @(posedge hfclk) begin
+	// 	case (state)
+	// 		IDLE: begin
+	// 			memread_buf <= memread;
+	// 			memwrite_buf <= memwrite;
+	// 			write_data_buffer <= write_data; // 32 bits
+	// 			addr_buf <= addr; // 32 bits
+	// 			sign_mask_buf <= sign_mask;		
+	// 		end
+	// 	endcase
+	// end
+
+	wire [31:0] dsp_sub_out;
+
+	DSPSub dsp_out(
+		.input1({22'b0, addr_buf_block_addr}),
+		.input2({32'h1000}),
+		.out(dsp_sub_out)
+	);
+
 	/*
 	 *	State machine
 	 */
@@ -241,9 +270,9 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		case (state)
 			IDLE: begin
 				clk_stall <= 0;
+				if(memwrite==1'b1 || memread==1'b1) begin
 					memread_buf <= memread;
 					memwrite_buf <= memwrite;
-				if(memwrite==1'b1 || memread==1'b1) begin
 					write_data_buffer <= write_data; // 32 bits
 					addr_buf <= addr; // 32 bits
 					sign_mask_buf <= sign_mask;				
@@ -257,11 +286,11 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 				 *	Subtract out the size of the instruction memory.
 				 *	(Bad practice: The constant should be a `define).
 				 */
-				word_buf <= data_block[addr_buf_block_addr - 32'h1000];
-				if(memread_buf==1'b1) begin
+				word_buf <= data_block[dsp_sub_out];
+				if(memread_buf) begin
 					state <= READ;
 				end
-				else if(memwrite_buf == 1'b1) begin
+				else if(memwrite_buf) begin
 					state <= WRITE;
 				end
 			end
@@ -279,11 +308,28 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 				 *	Subtract out the size of the instruction memory.
 				 *	(Bad practice: The constant should be a `define).
 				 */
-				data_block[addr_buf_block_addr - 32'h1000] <= replacement_word;
+				data_block[dsp_sub_out] <= replacement_word;
 				state <= IDLE;
 			end
 
 		endcase
+
+		// CUSTOM
+
+		// clk_stall = 1;
+		// addr_buf <= addr;
+		// write_data_buffer <= write_data;
+		// sign_mask_buf <= sign_mask;
+		// word_buf <= data_block[dsp_sub_out];
+
+		// if(memread) begin
+		// 	read_data = read_buf;
+		// 	clk_stall = 0;
+		// end
+		// else if(memwrite) begin
+		// 	data_block[dsp_sub_out] = replacement_word;
+		// 	clk_stall = 0;
+		// end
 	end
 
 	/*

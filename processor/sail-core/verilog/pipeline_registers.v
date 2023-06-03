@@ -43,10 +43,13 @@
 
 
 /* IF/ID pipeline registers */ 
-module if_id (clk, data_in, data_out);
+module if_id (clk, data_in, data_out, prev_1_pc_addr_out, prev_2_pc_addr_out);
 	input			clk;
 	input [63:0]		data_in;
 	output reg[63:0]	data_out;
+
+	output reg[31:0] prev_1_pc_addr_out;
+	output reg[31:0] prev_2_pc_addr_out;
 
 	/*
 	 *	This uses Yosys's support for nonzero initial values:
@@ -59,10 +62,14 @@ module if_id (clk, data_in, data_out);
 	 */
 	initial begin
 		data_out = 64'b0;
+		prev_1_pc_addr_out = 32'b0;
+		prev_2_pc_addr_out = 32'b0;
 	end
 
 	always @(posedge clk) begin
-		data_out <= data_in;
+		prev_2_pc_addr_out = prev_1_pc_addr_out;
+		prev_1_pc_addr_out = data_out [31:0];
+		data_out = data_in;
 	end
 endmodule
 
