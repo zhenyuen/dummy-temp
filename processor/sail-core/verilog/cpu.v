@@ -172,9 +172,6 @@ module cpu(
 	wire			decode_ctrl_mux_sel;
 	wire			inst_mux_sel;
 
-	// Mistake Register Out
-	wire		mistake_register_out;
-
 	/*
 	 *	Instruction Fetch Stage
 	 */
@@ -503,18 +500,11 @@ module cpu(
 	// 		.input2(imm_out),
 	// 		.out(branch_predictor_addr)
 	// 	);
-
-	MistakeRegister mistake_register(
-			.clk(clk),
-			.mistake(mistake_trigger),
-			// .branch_mem_sig(ex_mem_out[6]),
-			.out(mistake_register_out)
-		);
 	
 	mux2to1 branch_predictor_mux(
 			.input0(fence_mux_out),
 			.input1(branch_predictor_addr),
-			.select(predict & ~(mistake_register_out)),
+			.select(predict),
 			.out(branch_predictor_mux_out)
 		);
 
