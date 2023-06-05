@@ -91,10 +91,6 @@ module top (led);
 		.out(inst_out)
 	);
 
-	instruction_cache inst_cache(
-		.clk(clk),
-	);
-
 	data_mem data_mem_inst(
 			.clk(clk),
 			.addr(data_addr),
