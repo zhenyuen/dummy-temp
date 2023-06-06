@@ -255,6 +255,19 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 		.out(dsp_sub_out)
 	);
 
+
+	always @(posedge hfclk) begin
+		case (state)
+			IDLE: begin
+				memread_buf <= memread;
+				memwrite_buf <= memwrite;
+				write_data_buffer <= write_data; // 32 bits
+				addr_buf <= addr; // 32 bits
+				sign_mask_buf <= sign_mask;
+			end
+		endcase
+	end
+
 	/*
 	 *	State machine
 	 */
@@ -263,11 +276,6 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 			IDLE: begin
 				clk_stall <= 0;
 				if(memwrite==1'b1 || memread==1'b1) begin
-					memread_buf <= memread;
-					memwrite_buf <= memwrite;
-					write_data_buffer <= write_data; // 32 bits
-					addr_buf <= addr; // 32 bits
-					sign_mask_buf <= sign_mask;				
 					state <= READ_BUFFER;
 					clk_stall <= 1;
 				end
