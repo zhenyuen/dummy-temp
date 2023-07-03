@@ -38,17 +38,16 @@
 
 //Data cache
 
-module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
-	input			clk;
-	input 			hfclk;
+module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data, led, clk_stall);
+	input				clk;
 	input [31:0]		addr;
 	input [31:0]		write_data;
-	input			memwrite;
-	input			memread;
-	input [3:0]		sign_mask;
+	input				memwrite;
+	input				memread;
+	input [3:0]			sign_mask;
 	output reg [31:0]	read_data;
 	output [7:0]		led;
-	output reg		clk_stall;	//Sets the clock high
+	output reg			clk_stall;	//Sets the clock high
 
 	/*
 	 *	led register
@@ -246,20 +245,13 @@ module data_mem (clk, hfclk, addr, write_data, memwrite, memread, sign_mask, rea
 	always @(posedge hfclk) begin
 		case (state)
 			IDLE: begin
-				memread_buf <= memread;
-				memwrite_buf <= memwrite;
-				write_data_buffer <= write_data;
-				addr_buf <= addr;
-				sign_mask_buf <= sign_mask;
-			end
-		endcase
-	end
-
-	always @(posedge clk) begin
-		case (state)
-			IDLE: begin
 				clk_stall <= 0;
 				if(memwrite==1'b1 || memread==1'b1) begin
+					memread_buf <= memread;
+					memwrite_buf <= memwrite;
+					write_data_buffer <= write_data; // 32 bits
+					addr_buf <= addr; // 32 bits
+					sign_mask_buf <= sign_mask;				
 					state <= READ_BUFFER;
 					clk_stall <= 1;
 				end

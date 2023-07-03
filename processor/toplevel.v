@@ -46,6 +46,7 @@ module top (led);
 
 	wire		clk_proc;
 	wire		data_clk_stall;
+	wire 		hfclk;
 	
 	wire		hfclk;
 	wire		clk;
@@ -56,15 +57,15 @@ module top (led);
 	/*
 	 *	Use the iCE40's hard primitive for the clock source.
 	 */
-	SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
+	SB_HFOSC OSCInst0 (
 		.CLKHFEN(ENCLKHF),
 		.CLKHFPU(CLKHF_POWERUP),
 		.CLKHF(hfclk)
 	);
 
-	ClockDivider clk_div(
-		.clk_in(hfclk),
-		.clk_out(clk)
+	Pll pll (
+		.clock_in(hfclk),
+		.clock_out(clk)
 	);
 
 	/*

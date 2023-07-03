@@ -87,19 +87,19 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	reg[3:0] sign_mask_buf;
 
 	//block memory registers
-	reg[255:0] data_block[0:127];
+	reg[255:0] data_block[0:127]; // 128 words - 2**7 addresses, each address is 7 bits
 	//reg[5:0] tag[0:7];
 	//reg valid[0:7];
 
 	//wire assignments
 	wire[5:0] addr_buf_tag;
 	wire[2:0] addr_buf_index;
-	wire[8:0] addr_buf_block_addr;
+	wire[8:0] addr_buf_block_addr;  // 9 bit field
 	wire[2:0] addr_buf_word_offset;
 	wire[1:0] addr_buf_byte_offset;
-	assign addr_buf_tag = addr_buf[13:8];
-	assign addr_buf_index = addr_buf[7:5];
-	assign addr_buf_block_addr = addr_buf[13:5];
+	assign addr_buf_tag = addr_buf[13:8]; // 6 bit tag
+	assign addr_buf_index = addr_buf[7:5]; // 3 bit tag
+	assign addr_buf_block_addr = addr_buf[13:5]; // | --- 9 --- | --- 3 --- | ---- 2 ---- |
 	assign addr_buf_word_offset = addr_buf[4:2];
 	assign addr_buf_byte_offset = addr_buf[1:0];
 
@@ -331,17 +331,17 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 			READ_BUFFER: begin
 				line_buf <= data_block[addr_buf_block_addr];
 				if(memread_buf==1'b1) begin
-					state <= READ;
+					state <= READ; // Signals that data is ready to be read from buffer in the next clock cycle
 				end
 				else if(memwrite_buf == 1'b1) begin
-					state <= WRITE;
+					state <= WRITE; // Signals that data is ready to be written from buffer in the next clock cycle
 				end
 			end
 
 			READ: begin
 				clk_stall <= 0;
-				read_data <= read_buf;
-				state <= IDLE;
+				read_data <= read_buf; // Read from buffer
+				state <= IDLE; // Once complete, set state back to IDLE to load new data into buffer
 			end
 
 			WRITE: begin
